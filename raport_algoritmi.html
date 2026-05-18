@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>SAGABridge — Algoritmi și fluxuri</title>
+<style>
+  :root {
+    --ink: #1B1714;
+    --ink-soft: #4D4538;
+    --ink-quiet: #807766;
+    --paper: #FAF7F0;
+    --paper-deep: #F2EDE0;
+    --rule: #DDD6C2;
+    --accent: #7A1820;
+    --accent-wash: #F4E8E5;
+    --ok: #2C5F3B;
+    --ok-wash: #E5EDE2;
+    --warn: #8C5A1B;
+    --warn-wash: #F4ECDC;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  h1 {
+    font-size: 2.2rem;
+    margin: 0 0 0.3rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  h1 .sub {
+    display: block;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-top: 0.3rem;
+  }
+  .meta {
+    font-size: 0.85rem;
+    color: var(--ink-quiet);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.6rem 0;
+    margin: 1.4rem 0 2.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+  }
+  .meta strong { color: var(--ink-soft); }
+  h2 {
+    font-size: 1.4rem;
+    margin: 2.5rem 0 0.3rem;
+    color: var(--ink);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.3rem;
+  }
+  h2 .num {
+    color: var(--accent);
+    font-style: italic;
+    margin-right: 0.4rem;
+  }
+  h3 {
+    font-size: 1.05rem;
+    margin: 1.4rem 0 0.4rem;
+    color: var(--ink);
+  }
+  p { margin: 0.6rem 0; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    background: var(--paper-deep);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+  }
+  pre {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    background: var(--paper-deep);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    line-height: 1.5;
+    border-radius: 4px;
+  }
+  pre.diagram {
+    background: var(--paper);
+    border-color: var(--rule);
+    border-left: 1px solid var(--rule);
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .toc {
+    background: var(--paper-deep);
+    border: 1px solid var(--rule);
+    padding: 0.8rem 1.2rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+  .toc ol {
+    margin: 0.4rem 0 0;
+    padding-left: 1.2rem;
+    columns: 2;
+    column-gap: 2rem;
+  }
+  .toc li { margin: 0.1rem 0; break-inside: avoid; }
+  .toc a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.6rem 0 1rem;
+    font-size: 0.88rem;
+  }
+  th, td {
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    font-weight: 600;
+    border-bottom: 2px solid var(--rule);
+  }
+  td.num { font-family: monospace; text-align: right; }
+  td.accent { color: var(--accent); font-weight: 600; }
+  .note {
+    background: var(--warn-wash);
+    border-left: 3px solid var(--warn);
+    padding: 0.6rem 0.9rem;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+    border-radius: 3px;
+  }
+  .ok {
+    background: var(--ok-wash);
+    border-left: 3px solid var(--ok);
+    padding: 0.6rem 0.9rem;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+    border-radius: 3px;
+  }
+  .footer {
+    margin-top: 4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.8rem;
+    color: var(--ink-quiet);
+    text-align: center;
+  }
+  svg .box { fill: var(--paper-deep); stroke: var(--ink-soft); stroke-width: 1.5; }
+  svg .box-accent { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.5; }
+  svg .box-ok { fill: var(--ok-wash); stroke: var(--ok); stroke-width: 1.5; }
+  svg text { fill: var(--ink); font-family: Georgia, serif; font-size: 12px; }
+  svg .label { font-size: 11px; fill: var(--ink-quiet); font-style: italic; }
+  svg .arrow { fill: none; stroke: var(--ink-soft); stroke-width: 1.5; }
+
+  @media print {
+    body { background: white; }
+    h2 { page-break-after: avoid; }
+    pre, svg { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>SAGABridge<span class="sub">Algoritmi și fluxuri de procesare</span></h1>
+
+<div class="meta">
+  <span><strong>Lucrare:</strong> Invoice Digitalization and Integration with SAGA</span>
+  <span><strong>Autor:</strong> Ing. David-Adrian Băbțan</span>
+  <span><strong>Conducător:</strong> Conf. dr. ing. Silviu Răileanu</span>
+  <span><strong>UPB FAIMA</strong> · mai 2026</span>
+</div>
+
+<div class="toc">
+<strong>Cuprins</strong>
+<ol>
+  <li><a href="#a0">Arhitectura generală (8 etape)</a></li>
+  <li><a href="#a1">Decizia hibridă text-vs-OCR</a></li>
+  <li><a href="#a2">Prompting constrâns la JSON (LLM local)</a></li>
+  <li><a href="#a3">Normalizare CUI (regex)</a></li>
+  <li><a href="#a4">Name matching slug-based</a></li>
+  <li><a href="#a5">Address matching prin token-overlap</a></li>
+  <li><a href="#a6">Detecția prefixului VAT-UE și auto-fallback</a></li>
+  <li><a href="#a7">Clasificarea domeniilor pentru mențiuni</a></li>
+  <li><a href="#a8">Filtrare adult content (2 niveluri)</a></li>
+  <li><a href="#a9">Scoring euristic de risc (aditiv plafonat)</a></li>
+  <li><a href="#a10">Paralelizare cu ThreadPoolExecutor</a></li>
+  <li><a href="#a11">Generare XML deterministă</a></li>
+  <li><a href="#a12">Coercer Pydantic (OptStr / OptFloat)</a></li>
+</ol>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="a0"><span class="num">§0</span>Arhitectura generală — 8 etape</h2>
+
+<p>Pipeline-ul aplicației procesează o factură PDF în 8 etape, fiecare cu propriul scop. Etapele 5–6 rulează în paralel pentru ambele firme.</p>
+
+<svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- Stage 1: Upload -->
+  <rect class="box" x="320" y="10" width="160" height="40" rx="4"/>
+  <text x="400" y="35" text-anchor="middle">① Upload PDF</text>
+  <line class="arrow" x1="400" y1="50" x2="400" y2="70" marker-end="url(#arr)"/>
+  <!-- Stage 2: PyMuPDF -->
+  <rect class="box" x="320" y="70" width="160" height="40" rx="4"/>
+  <text x="400" y="95" text-anchor="middle">② PyMuPDF text</text>
+  <line class="arrow" x1="400" y1="110" x2="400" y2="130" marker-end="url(#arr)"/>
+  <!-- Decision: enough text? -->
+  <polygon class="box" points="400,135 480,170 400,205 320,170"/>
+  <text x="400" y="173" text-anchor="middle" font-size="11">text suficient?</text>
+  <!-- Yes branch (right) -->
+  <line class="arrow" x1="480" y1="170" x2="540" y2="170" marker-end="url(#arr)"/>
+  <text x="490" y="160" class="label">da</text>
+  <!-- No branch (left) -->
+  <line class="arrow" x1="320" y1="170" x2="260" y2="170" marker-end="url(#arr)"/>
+  <text x="285" y="160" class="label">nu</text>
+  <!-- Tesseract -->
+  <rect class="box" x="100" y="150" width="160" height="40" rx="4"/>
+  <text x="180" y="175" text-anchor="middle">③ Tesseract OCR</text>
+  <line class="arrow" x1="180" y1="190" x2="180" y2="220" marker-end="url(#arr)"/>
+  <line class="arrow" x1="180" y1="220" x2="400" y2="220" marker-end="url(#arr)"/>
+  <line class="arrow" x1="540" y1="170" x2="540" y2="220" marker-end="url(#arr)"/>
+  <line class="arrow" x1="540" y1="220" x2="400" y2="220"/>
+  <!-- Stage 4: Ollama -->
+  <rect class="box box-accent" x="300" y="220" width="200" height="50" rx="4"/>
+  <text x="400" y="245" text-anchor="middle" font-weight="bold">④ Ollama LLM (local)</text>
+  <text x="400" y="260" text-anchor="middle" class="label">format=json, temperature=0</text>
+  <line class="arrow" x1="400" y1="270" x2="400" y2="290" marker-end="url(#arr)"/>
+  <!-- Stage 5: Pydantic -->
+  <rect class="box" x="300" y="290" width="200" height="40" rx="4"/>
+  <text x="400" y="315" text-anchor="middle">⑤ Pydantic validation</text>
+  <!-- Parallel split -->
+  <line class="arrow" x1="400" y1="330" x2="400" y2="350"/>
+  <line class="arrow" x1="400" y1="350" x2="160" y2="350"/>
+  <line class="arrow" x1="400" y1="350" x2="640" y2="350"/>
+  <line class="arrow" x1="160" y1="350" x2="160" y2="370" marker-end="url(#arr)"/>
+  <line class="arrow" x1="640" y1="350" x2="640" y2="370" marker-end="url(#arr)"/>
+  <text x="400" y="345" text-anchor="middle" class="label">paralel: 2 fire ThreadPoolExecutor</text>
+  <!-- Supplier audit -->
+  <rect class="box box-ok" x="60" y="370" width="200" height="90" rx="4"/>
+  <text x="160" y="392" text-anchor="middle" font-weight="bold">⑥ Supplier audit</text>
+  <text x="160" y="412" text-anchor="middle" class="label">ANAF / VIES verify</text>
+  <text x="160" y="428" text-anchor="middle" class="label">DuckDuckGo search</text>
+  <text x="160" y="444" text-anchor="middle" class="label">Risk scoring</text>
+  <!-- Customer audit -->
+  <rect class="box box-ok" x="540" y="370" width="200" height="90" rx="4"/>
+  <text x="640" y="392" text-anchor="middle" font-weight="bold">⑥ Customer audit</text>
+  <text x="640" y="412" text-anchor="middle" class="label">ANAF / VIES verify</text>
+  <text x="640" y="428" text-anchor="middle" class="label">DuckDuckGo search</text>
+  <text x="640" y="444" text-anchor="middle" class="label">Risk scoring</text>
+  <!-- Merge -->
+  <line class="arrow" x1="160" y1="460" x2="160" y2="480"/>
+  <line class="arrow" x1="640" y1="460" x2="640" y2="480"/>
+  <line class="arrow" x1="160" y1="480" x2="400" y2="480"/>
+  <line class="arrow" x1="640" y1="480" x2="400" y2="480"/>
+  <line class="arrow" x1="400" y1="480" x2="400" y2="500" marker-end="url(#arr)"/>
+  <!-- Stage 7: XML -->
+  <rect class="box box-accent" x="300" y="500" width="200" height="40" rx="4"/>
+  <text x="400" y="525" text-anchor="middle" font-weight="bold">⑦ ElementTree → XML</text>
+  <!-- arrow marker -->
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4D4538"/>
+    </marker>
+  </defs>
+</svg>
+
+<!-- ============================================================ -->
+<h2 id="a1"><span class="num">§1</span>Decizia hibridă text-vs-OCR</h2>
+
+<p><strong>Locație:</strong> <code>src/pdf_processor.py :: is_text_sufficient()</code></p>
+
+<p>După extragerea textului nativ cu PyMuPDF, aplicația decide dacă merită apelată OCR-ul Tesseract sau direct LLM-ul. Algoritmul cere <strong>simultan</strong> ambele condiții — un singur prag de lungime nu e suficient, pentru că o factură scanată poate produce 200 de caractere de „zgomot" fără sens semantic.</p>
+
+<pre>def is_text_sufficient(text: str) -&gt; bool:
+    if not text or len(text.strip()) &lt; MIN_TEXT_LENGTH:   # 200 chars
+        return False
+    lowered = text.lower()
+    return any(keyword in lowered for keyword in INVOICE_KEYWORDS)</pre>
+
+<p><strong>INVOICE_KEYWORDS</strong> e o listă bilingvă RO+EN: <code>factura, factură, invoice, total, tva, vat, cui, subtotal, iban, furnizor, supplier, client, customer</code>. E suficient să apară <strong>unul</strong>.</p>
+
+<pre class="diagram">
+  text ──&gt; len(text) &gt;= 200?  ──┐
+                                 │
+                                 ▼
+                        contine keyword?  ──&gt; <strong>true</strong>: trimite direct la LLM
+                                 │
+                                 ▼
+                              <strong>false</strong>: rendereaza PNG → Tesseract → LLM</pre>
+
+<!-- ============================================================ -->
+<h2 id="a2"><span class="num">§2</span>Prompting constrâns la JSON</h2>
+
+<p><strong>Locație:</strong> <code>src/local_extractor.py :: _run_ollama()</code></p>
+
+<p>LLM-ul local primește 3 mecanisme suprapuse de constrângere care minimizează halucinația și forțează output JSON valid:</p>
+
+<table>
+  <thead><tr><th>Mecanism</th><th>Cum funcționează</th></tr></thead>
+  <tbody>
+    <tr><td>System prompt cu interdicție explicită</td><td>„extract only information ACTUALLY present, do NOT infer or invent, use null for missing fields"</td></tr>
+    <tr><td>Schemă JSON impusă în prompt</td><td>Structura completă (Supplier/Customer/items/totals) e inserată ca template în user message</td></tr>
+    <tr><td><code>format="json"</code> la Ollama</td><td>La nivel de tokenizer, Ollama forțează output sintactic JSON valid</td></tr>
+    <tr><td><code>temperature=0</code></td><td>Determinism: același input → același output</td></tr>
+  </tbody>
+</table>
+
+<div class="ok">După parsing, dacă output-ul nu poate fi decodat ca JSON valid, funcția <code>parse_json_safe()</code> încearcă să recupereze conținutul dintre primul <code>{</code> și ultimul <code>}</code>, eliminând eventuale fence-uri Markdown.</div>
+
+<!-- ============================================================ -->
+<h2 id="a3"><span class="num">§3</span>Normalizare CUI</h2>
+
+<p><strong>Locație:</strong> <code>src/company_verifier.py :: normalize_tax_id()</code></p>
+
+<p>CUI-ul de pe factură poate apărea în multiple formate: <code>RO12345678</code>, <code>ro 12345678</code>, <code>  RO 12 34 56 78  </code>. ANAF acceptă doar partea numerică. Algoritm în 2 pași:</p>
+
+<pre>def normalize_tax_id(tax_id):
+    cleaned = re.sub(r"\s+", "", tax_id.strip())              # 1. fara spatii
+    cleaned = re.sub(r"^RO", "", cleaned, flags=re.IGNORECASE) # 2. fara prefix RO
+    return cleaned</pre>
+
+<div class="note"><strong>Detaliu tehnic:</strong> am folosit <code>flags=re.IGNORECASE</code> ca argument separat, NU inline <code>(?i)</code>. Python 3.14 nu mai permite flag-uri inline în mijlocul pattern-ului, doar la start.</div>
+
+<table>
+<thead><tr><th>Input</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><code>"RO12345678"</code></td><td><code>"12345678"</code></td></tr>
+<tr><td><code>"ro 12345678"</code></td><td><code>"12345678"</code></td></tr>
+<tr><td><code>"  12345678  "</code></td><td><code>"12345678"</code></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="a4"><span class="num">§4</span>Name matching slug-based</h2>
+
+<p><strong>Locație:</strong> <code>src/company_verifier.py :: compare_invoice_supplier_with_verified_data()</code></p>
+
+<p>Compararea numelor de firmă trebuie să tolereze variațiile de formă legală: <code>"SRL"</code> vs <code>"S.R.L."</code> vs <code>"S R L"</code>, diacritice etc. Algoritmul reduce ambele șiruri la slug-uri alfanumerice și compară prin incluziune.</p>
+
+<pre>def _slug(text):
+    return re.sub(r"[^a-z0-9]", "", text.lower())
+
+a = _slug("Test S.R.L.")     # "testsrl"
+b = _slug("TEST SRL")        # "testsrl"
+match = a == b or a in b or b in a   # True</pre>
+
+<p><strong>Decizia <code>a in b or b in a</code></strong> tratează cazul în care un nume e prefix sau sufix al celuilalt — ex. „<em>Test SRL Bucuresti</em>" vs „<em>Test SRL</em>" se consideră match.</p>
+
+<!-- ============================================================ -->
+<h2 id="a5"><span class="num">§5</span>Address matching prin token-overlap</h2>
+
+<p><strong>Locație:</strong> <code>src/company_verifier.py</code></p>
+
+<p>Adresele sunt mai dificile — abrevieri (Str./Strada), ordinea diferită, diacritice. Folosim un algoritm Jaccard-like: setuim cuvintele cu lungime ≥ 3 caractere și verificăm overlap-ul.</p>
+
+<pre>a_tokens = set(re.findall(r"\w{3,}", inv_addr.lower()))
+b_tokens = set(re.findall(r"\w{3,}", verification.address.lower()))
+overlap = len(a_tokens &amp; b_tokens)
+threshold = max(1, min(len(a_tokens), len(b_tokens)) // 3)
+match = overlap &gt;= threshold</pre>
+
+<p>Pragul de <em>cel puțin 1/3 din mărimea celui mai mic set</em> permite o toleranță rezonabilă fără a accepta adrese complet diferite.</p>
+
+<table>
+<thead><tr><th>Adresă factură</th><th>Adresă oficială</th><th>Overlap</th><th>Match?</th></tr></thead>
+<tbody>
+<tr><td>Str. Mare 5</td><td>Strada Mare nr. 5</td><td>{mare} = 1</td><td>✓ da</td></tr>
+<tr><td>Bd. Magheru 12</td><td>Calea Victoriei 25</td><td>{} = 0</td><td>✗ nu</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="a6"><span class="num">§6</span>Detecția prefixului VAT-UE și auto-fallback</h2>
+
+<p><strong>Locație:</strong> <code>src/company_verifier.py :: verify_company()</code></p>
+
+<p>Aplicația suportă firme din orice țară UE prin combinația ANAF (specific România) + VIES (toate țările UE). Dacă primary provider eșuează, sistemul încearcă automat alternativul, în funcție de prefixul VAT detectat.</p>
+
+<pre class="diagram">
+  verify_company(name, tax_id)
+       │
+       ▼
+  primary_provider == "anaf"?
+       │
+       ├── DA ──&gt; ANAF call ──&gt; success? ─── DA ──&gt; return
+       │             │                          NU
+       │             ▼
+       │       has EU VAT prefix?
+       │             │
+       │             ├── DA ──&gt; VIES fallback ──&gt; return
+       │             │
+       │             └── NU ──&gt; return primary error
+       │
+       └── primary_provider == "vies" ──&gt; ...similar logic
+</pre>
+
+<p>Detecția prefixului UE folosește un set de 28 coduri ISO de stat:</p>
+
+<pre>EU_VAT_PREFIXES = ("AT","BE","BG","CY","CZ","DE","DK","EE","EL","ES",
+                   "FI","FR","HR","HU","IE","IT","LT","LU","LV","MT",
+                   "NL","PL","PT","RO","SE","SI","SK","XI")</pre>
+
+<!-- ============================================================ -->
+<h2 id="a7"><span class="num">§7</span>Clasificarea domeniilor pentru mențiuni</h2>
+
+<p><strong>Locație:</strong> <code>src/company_news_search.py :: _classify()</code></p>
+
+<p>Rezultatele DuckDuckGo sunt etichetate în 4 categorii pentru a fi sortate și afișate diferit în UI: <strong>website</strong> (site propriu al firmei), <strong>registry</strong> (anaf, listafirme etc.), <strong>social</strong> (LinkedIn, Facebook), <strong>news</strong> (presă).</p>
+
+<pre class="diagram">
+  url = "https://www.fulloutmedia.ro/contact"
+       │
+       ▼
+  domain = "fulloutmedia.ro"
+       │
+       ▼
+  ┌─ in REGISTRY_DOMAINS? ──&gt; "registry"
+  │
+  ├─ in SOCIAL_DOMAINS? ────&gt; "social"
+  │
+  ├─ slug(name) in domain? ─&gt; "website"   ← caz în care e site propriu
+  │
+  └─ default ───────────────&gt; "news"
+</pre>
+
+<p>Heuristica <em>"slug-ul firmei e substring în partea registrabilă a domeniului"</em> e cea care identifică automat site-ul propriu al firmei, chiar și fără o listă predefinită.</p>
+
+<!-- ============================================================ -->
+<h2 id="a8"><span class="num">§8</span>Filtrare conținut adult (2 niveluri)</h2>
+
+<p><strong>Locație:</strong> <code>src/company_news_search.py :: _is_adult_result()</code></p>
+
+<p>Filtrarea se face în două straturi suprapuse, ca să asigure că rezultatele inadecvate nu intră într-un raport de verificare a firmei.</p>
+
+<table>
+<thead><tr><th>Nivel</th><th>Mecanism</th><th>Locație</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>safesearch="strict"</code> la DuckDuckGo</td><td>Filtrare la sursă, de către motor</td></tr>
+<tr><td>2</td><td>Blocklist de domenii (PornHub, XVideos, escortguide.ro etc.) + keyword-uri în titlu/snippet</td><td>Filtrare locală, după returnare</td></tr>
+</tbody>
+</table>
+
+<p><strong>Detaliu critic:</strong> match-ul pe keyword-uri folosește <code>\b...\b</code> (word-boundary regex) ca să evite false positives.</p>
+
+<pre>for kw in ADULT_KEYWORDS:
+    if re.search(rf"\b{re.escape(kw)}\b", text):
+        return True</pre>
+
+<table>
+<thead><tr><th>Text</th><th>Keyword</th><th>Blocat?</th></tr></thead>
+<tbody>
+<tr><td>"Porno news article"</td><td>porn</td><td>✓ da</td></tr>
+<tr><td>"Sexagenar arestat"</td><td>sex</td><td>✗ nu (prefix, nu cuvânt)</td></tr>
+<tr><td>"Essex village news"</td><td>sex</td><td>✗ nu (substring în alt cuvânt)</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="a9"><span class="num">§9</span>Scoring euristic de risc</h2>
+
+<p><strong>Locație:</strong> <code>src/company_risk_analyzer.py :: analyze_company_risk()</code></p>
+
+<p>Scorul de risc se calculează aditiv, după reguli explicite și auditabile. Output: scor <code>0–100</code>, nivel <code>low</code>/<code>medium</code>/<code>high</code>, listă de warnings cu motivul fiecărui punct.</p>
+
+<table>
+<thead><tr><th>Semnal</th><th>Penalizare</th></tr></thead>
+<tbody>
+<tr><td>Firma nu a putut fi verificată</td><td class="num accent">+30</td></tr>
+<tr><td>Status firmă: inactiv / radiat / suspendat / dizolvat / lichidare</td><td class="num accent">+50</td></tr>
+<tr><td>CUI de pe factură nu corespunde cu cel oficial</td><td class="num accent">+40</td></tr>
+<tr><td>Numele firmei nu se potrivește cu cel oficial</td><td class="num accent">+20</td></tr>
+<tr><td>Articol cu keyword negativ (insolvență/faliment/anchetă/datorii/executare)</td><td class="num accent">+10 / articol</td></tr>
+<tr><td><em>cap maxim</em></td><td class="num">100</td></tr>
+</tbody>
+</table>
+
+<pre class="diagram">
+  scor ──&gt; cap la 100 ──&gt; ┌─ ≤ 30 ──&gt; <strong>low</strong>
+                            ├─ ≤ 65 ──&gt; <strong>medium</strong>
+                            └─ &gt; 65 ──&gt; <strong>high</strong></pre>
+
+<div class="note"><strong>Disclaimer etic:</strong> codul include comentariul explicit „<em>This is a heuristic academic risk indicator, not a legal or financial decision tool.</em>" — aplicația semnalează firme suspecte pentru revizuire umană, nu înlocuiește due diligence.</div>
+
+<!-- ============================================================ -->
+<h2 id="a10"><span class="num">§10</span>Paralelizare cu ThreadPoolExecutor</h2>
+
+<p><strong>Locație:</strong> <code>app.py :: main()</code></p>
+
+<p>Verificarea celor două firme (supplier + customer) e I/O-bound — fiecare așteaptă răspunsul ANAF/VIES/DuckDuckGo. Rulându-le în paralel cu 2 fire, timpul total devine <code>max(T<sub>supplier</sub>, T<sub>customer</sub>)</code> în loc de <code>T<sub>supplier</sub> + T<sub>customer</sub></code>.</p>
+
+<pre>with ThreadPoolExecutor(max_workers=2) as pool:
+    sup_future = pool.submit(_audit_party, invoice.supplier)
+    cus_future = pool.submit(_audit_party, invoice.customer)
+    sup_v, sup_c, sup_n, sup_r = sup_future.result()
+    cus_v, cus_c, cus_n, cus_r = cus_future.result()</pre>
+
+<p>Scădere de timp măsurată în testare: <strong>~25s → ~13s</strong> end-to-end pentru o factură reală.</p>
+
+<!-- ============================================================ -->
+<h2 id="a11"><span class="num">§11</span>Generare XML deterministă</h2>
+
+<p><strong>Locație:</strong> <code>src/xml_generator.py :: generate_invoice_xml()</code></p>
+
+<p>Generarea XML <strong>nu trece prin LLM</strong>. Datele validate de Pydantic devin un arbore <code>ElementTree</code>, apoi sunt serializate și pretty-printate cu <code>minidom</code>. Asta garantează:</p>
+
+<ul>
+<li>Reproductibilitate bit-cu-bit (același JSON → același XML)</li>
+<li>Escape automat al caracterelor speciale (<code>&lt;</code> <code>&gt;</code> <code>&amp;</code>) — preîntâmpină XML injection</li>
+<li>Performanță deterministă (zero ms latență AI)</li>
+</ul>
+
+<pre>root = ET.Element("Invoice")
+_add_child(root, "InvoiceNumber", invoice.invoice_number)
+_build_supplier(root, invoice.supplier)
+_build_customer(root, invoice.customer)
+items_node = ET.SubElement(root, "Items")
+for item in invoice.items:
+    _build_item(items_node, item)
+_build_totals(root, invoice.totals)
+_build_company_verification(root, "SupplierVerification", ...)
+_build_company_verification(root, "CustomerVerification", ...)
+raw = ET.tostring(root, encoding="utf-8")
+pretty = minidom.parseString(raw).toprettyxml(indent="  ")</pre>
+
+<p><code>safe_text(value)</code> tratează uniform <code>None → ""</code>, <code>float → format optim cu trailing zeros stripped</code>, etc.</p>
+
+<!-- ============================================================ -->
+<h2 id="a12"><span class="num">§12</span>Coercer Pydantic — OptStr / OptFloat</h2>
+
+<p><strong>Locație:</strong> <code>src/schema.py</code></p>
+
+<p>LLM-urile mici (Llama 3.2 3B) câteodată returnează <code>[]</code> sau <code>{}</code> pentru câmpuri care ar fi trebuit <code>null</code>, sau string-uri precum <code>"1.234,56 RON"</code> pentru numere. Tradițional, Pydantic ar fi căzut pe ValidationError. Soluția: două tipuri custom <code>OptStr</code> și <code>OptFloat</code> cu validator <code>BeforeValidator</code> care normalizează input-ul.</p>
+
+<pre>OptStr   = Annotated[Optional[str],   BeforeValidator(_to_opt_str)]
+OptFloat = Annotated[Optional[float], BeforeValidator(_to_opt_float)]</pre>
+
+<p>Reguli de coerciție:</p>
+
+<table>
+<thead><tr><th>Input</th><th>OptStr →</th><th>OptFloat →</th></tr></thead>
+<tbody>
+<tr><td><code>None</code></td><td><code>None</code></td><td><code>None</code></td></tr>
+<tr><td><code>[]</code> / <code>{}</code></td><td><code>None</code></td><td><code>None</code></td></tr>
+<tr><td><code>"RO123"</code></td><td><code>"RO123"</code></td><td><code>None</code></td></tr>
+<tr><td><code>123</code></td><td><code>"123"</code></td><td><code>123.0</code></td></tr>
+<tr><td><code>"1.234,56"</code></td><td><code>"1.234,56"</code></td><td><code>1234.56</code></td></tr>
+<tr><td><code>"2,938.25 RON"</code></td><td><code>"2,938.25 RON"</code></td><td><code>2938.25</code></td></tr>
+<tr><td><code>["a", "b"]</code></td><td><code>"a | b"</code></td><td>primul număr valid</td></tr>
+</tbody>
+</table>
+
+<p>Pentru <code>OptFloat</code>, parser-ul detectează inteligent formatul european vs american:</p>
+
+<pre>if "," in s and "." in s:
+    if s.rfind(",") &gt; s.rfind("."):
+        # format european: "1.234,56" → "1234.56"
+        s = s.replace(".", "").replace(",", ".")
+    else:
+        # format american: "1,234.56" → "1234.56"
+        s = s.replace(",", "")
+elif "," in s:
+    parts = s.split(",")
+    if len(parts) == 2 and 1 &lt;= len(parts[1]) &lt;= 2:
+        s = s.replace(",", ".")     # virgula = zecimale
+    else:
+        s = s.replace(",", "")      # virgula = mii</pre>
+
+<div class="ok"><strong>Avantajul de design:</strong> aplicația devine robustă la output-uri „dezordonate" ale modelului local fără să compromită rigorile validării. Coercer-ul nu inventează date — convertește doar reprezentarea.</div>
+
+<div class="footer">
+SAGABridge · Algoritmi și fluxuri · Generat ca anexă tehnică a lucrării de disertație<br>
+UPB FAIMA · Management of Digital Enterprises · București, mai 2026
+</div>
+
+</div>
+</body>
+</html>

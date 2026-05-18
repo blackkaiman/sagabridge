@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber>SER-23</InvoiceNumber>
+  <InvoiceDate>14.10.2025</InvoiceDate>
+  <DueDate/>
+  <Currency>RON</Currency>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/23.03.2021</RegistrationNumber>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15 Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO10 RNCB 0857 1727 5547 0001</IBAN>
+    <Bank>BANCA COMERCIALA ROMANA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Full Out Media S.R.L.</Name>
+    <TaxID>RO 38597942</TaxID>
+    <RegistrationNumber>J2017020474405</RegistrationNumber>
+    <Address>Str Petricani, 4, Demisol. Boxa Nr. 10, București 23842 Sect 2, jud. Municipiul București, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Realizare site web - https://www.pieseaspirator.ro</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>1524.02</UnitPrice>
+      <VATRate/>
+      <NetAmount>1524.02</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>Realizare site web - https://www.voltigo.ro</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>1782.22</UnitPrice>
+      <VATRate/>
+      <NetAmount>1782.22</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>3306.24</Subtotal>
+    <VATTotal/>
+    <GrandTotal>3306.24</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>false</Verified>
+    <Status>not_found</Status>
+    <Source>openai</Source>
+    <OfficialName/>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address/>
+    <VATStatus/>
+    <CompanyStatus/>
+    <CAENCode/>
+    <RiskScore>30</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Company could not be verified (status: not_found).</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PFA din Zalau - Sălaj, CUI 43964751</Title>
+        <URL>https://www.mfirme.ro/babtan-david-adrian-pfa-43964751</URL>
+        <Snippet>Informații despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, Sălaj. Ultima actualizare: 1 ianuarie 2022.</Snippet>
+        <Source>mfirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ - Edata Business</Title>
+        <URL>https://edata.business/companie/rou/roonrcf312102021-babtan-david-adrian-persoana-fizica-autorizata</URL>
+        <Snippet>Detalii despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv codul fiscal ROONRC.F31/210/2021, activă, cu sediul în Zalău, Sălaj. Ultima actualizare: 8 aprilie 2026.</Snippet>
+        <Source>edata.business</Source>
+        <PublishedDate>2026-04-08</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PFA din Zalau - CUI 43964751</Title>
+        <URL>https://targetare.ro/43964751/babtan-david-adrian-pfa</URL>
+        <Snippet>Informații despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, Sălaj. Ultima actualizare: 13 decembrie 2025.</Snippet>
+        <Source>targetare.ro</Source>
+        <PublishedDate>2025-12-13</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ din Str. PIETRIS, nr. 9, Zalau</Title>
+        <URL>https://www.topfirme.com/afacere/b%C4%83b%C5%A3an-david-adrian-persoan%C4%83-fizic%C4%83-autorizat%C4%83/6ky6jr2gyy/</URL>
+        <Snippet>Detalii despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, Sălaj. Ultima actualizare: 13 decembrie 2025.</Snippet>
+        <Source>topfirme.com</Source>
+        <PublishedDate>2025-12-13</PublishedDate>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>openai (termene.ro)</Source>
+    <OfficialName>FULL OUT MEDIA S.R.L.</OfficialName>
+    <TaxID>38597942</TaxID>
+    <RegistrationNumber>J2017020474405</RegistrationNumber>
+    <Address>Str. Petricani 4 Et. D Ap. BOXA 10 Cod 023842, Sectorul 2, București, România</Address>
+    <VATStatus/>
+    <CompanyStatus>ACTIVA</CompanyStatus>
+    <CAENCode>7311</CAENCode>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>Full Out Media S.R.L. - Website</Title>
+        <URL>https://www.fulloutmedia.ro/</URL>
+        <Snippet>Official website of Full Out Media S.R.L., a digital marketing agency specializing in PPC, SEO, Social Media, Web Development, and Email Marketing.</Snippet>
+        <Source>www.fulloutmedia.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>FULL OUT MEDIA S.R.L. - CUI 38597942</Title>
+        <URL>https://firmeo.ro/38597942-full-out-media-srl</URL>
+        <Snippet>Official registry page providing details about Full Out Media S.R.L., including fiscal code, registration number, and financial indicators.</Snippet>
+        <Source>firmeo.ro</Source>
+        <PublishedDate>2025-05-20</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>FULL OUT MEDIA S.R.L. - Fiscal Code 38597942 - Company data, Contacts, Phone number</Title>
+        <URL>https://www.risco.ro/en/verifica-firma/full-out-media-cui-38597942</URL>
+        <Snippet>Company data, contacts, and financial information for Full Out Media S.R.L., including fiscal code and registration details.</Snippet>
+        <Source>www.risco.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>FULL OUT MEDIA S.R.L. - CUI 38597942</Title>
+        <URL>https://metricbiz.ro/firma/full-out-media-srl-cui-38597942</URL>
+        <Snippet>Company profile of Full Out Media S.R.L., including fiscal code, registration number, and financial indicators.</Snippet>
+        <Source>metricbiz.ro</Source>
+        <PublishedDate>2026-04-15</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>FULL OUT MEDIA S.R.L. - CUI 38597942</Title>
+        <URL>https://www.romanian-companies.eu/full-out-media-srl-38597942/</URL>
+        <Snippet>Company information for Full Out Media S.R.L., including fiscal code, registration number, and address.</Snippet>
+        <Source>www.romanian-companies.eu</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>

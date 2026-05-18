@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber>FACT-ABO-L-1005821</InvoiceNumber>
+  <InvoiceDate>16.03.2026</InvoiceDate>
+  <DueDate>31.03.2026</DueDate>
+  <Currency>RON</Currency>
+  <Supplier>
+    <Name>Cubus Arts S.R.L.</Name>
+    <TaxID>RO 13548146</TaxID>
+    <RegistrationNumber>J2000000508324</RegistrationNumber>
+    <Address>Calea Cisnădiei, nr. 64 550408 Sibiu , jud. Sibiu, România</Address>
+    <IBAN>RO45 INGB 0000 9999 0357 2999</IBAN>
+    <Bank>ING BANK</Bank>
+  </Supplier>
+  <Customer>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/23.03.2021</RegistrationNumber>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15 Zalău, jud. Sălaj, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Abonament factureaza.ro [01.04.2026 - 30.04.2026] conform actul adițional 1 din 10.11.2025 la contract 54061 din 08.11.2025</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>34.99</UnitPrice>
+      <VATRate>21</VATRate>
+      <NetAmount>34.99</NetAmount>
+      <VATAmount>7.35</VATAmount>
+      <GrossAmount>42.34</GrossAmount>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>34.99</Subtotal>
+    <VATTotal>7.35</VATTotal>
+    <GrandTotal>42.34</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>openai (listafirme.ro)</Source>
+    <OfficialName>CUBUS ARTS S.R.L.</OfficialName>
+    <TaxID>13548146</TaxID>
+    <RegistrationNumber>J2000000508324</RegistrationNumber>
+    <Address>Calea Cisnadiei 64, Cod 550408, Sibiu</Address>
+    <VATStatus/>
+    <CompanyStatus/>
+    <CAENCode>6201</CAENCode>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>CUBUS ARTS SRL - CUI 13548146</Title>
+        <URL>https://cubus.ro</URL>
+        <Snippet>Official website of CUBUS ARTS SRL, providing web development, devops, PaaS/infrastructure, and Ruby on Rails services in Romania.</Snippet>
+        <Source>cubus.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>CUBUS ARTS SRL - CUI 13548146</Title>
+        <URL>https://metricbiz.ro/en/firma/cubus-arts-srl-cui-13548146</URL>
+        <Snippet>Company status: operational. Established on 23 November 2000, located in Sibiu, Romania. Main activity: custom software development (CAEN code 6201).</Snippet>
+        <Source>metricbiz.ro</Source>
+        <PublishedDate>2026-04-14</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>CUBUS ARTS SRL - CUI 13548146</Title>
+        <URL>https://firmeo.ro/13548146-cubus-arts-srl</URL>
+        <Snippet>Company status: operational. Established on 23 November 2000, located in Sibiu, Romania. Main activity: custom software development (CAEN code 6201).</Snippet>
+        <Source>firmeo.ro</Source>
+        <PublishedDate>2025-06-11</PublishedDate>
+      </Mention>
+      <Mention>
+        <Title>CUBUS ARTS SRL - CUI 13548146</Title>
+        <URL>https://listafirme.ro/cubus-arts-srl-13548146/</URL>
+        <Snippet>Company status: operational. Established on 23 November 2000, located in Sibiu, Romania. Main activity: custom software development (CAEN code 6201).</Snippet>
+        <Source>listafirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>CUBUS ARTS SRL - CUI 13548146</Title>
+        <URL>https://www.totalfirme.ro/cubus-arts-srl-13548146</URL>
+        <Snippet>Company status: operational. Established on 23 November 2000, located in Sibiu, Romania. Main activity: custom software development (CAEN code 6201).</Snippet>
+        <Source>totalfirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>false</Verified>
+    <Status>not_found</Status>
+    <Source>openai</Source>
+    <OfficialName/>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address/>
+    <VATStatus/>
+    <CompanyStatus/>
+    <CAENCode/>
+    <RiskScore>30</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Company could not be verified (status: not_found).</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PFA din Zalau - Sălaj, CUI 43964751</Title>
+        <URL>https://www.mfirme.ro/babtan-david-adrian-pfa-43964751</URL>
+        <Snippet>Informații despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, județul Sălaj.</Snippet>
+        <Source>mfirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ din Str. PIETRIS, nr. 9, Zalau</Title>
+        <URL>https://www.topfirme.com/afacere/b%C4%83b%C5%A3an-david-adrian-persoan%C4%83-fizic%C4%83-autorizat%C4%83/6ky6jr2gyy/</URL>
+        <Snippet>Detalii despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, județul Sălaj.</Snippet>
+        <Source>topfirme.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PFA din Zalau - CUI 43964751</Title>
+        <URL>https://targetare.ro/43964751/babtan-david-adrian-pfa</URL>
+        <Snippet>Informații despre BĂBŢAN DAVID-ADRIAN PFA, inclusiv CUI 43964751, înființată pe 23 martie 2021, cu sediul în Zalău, județul Sălaj.</Snippet>
+        <Source>targetare.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>BĂBŢAN DAVID-ADRIAN PFA</Title>
+        <URL>https://www.mfirme.ro/firme-romania/salaj/?page=756</URL>
+        <Snippet>BĂBŢAN DAVID-ADRIAN PFA este listată printre firmele din județul Sălaj, cu CUI 43964751.</Snippet>
+        <Source>mfirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Asocierea student - conducator, finalizarea studiilor</Title>
+        <URL>https://etti.utcluj.ro/files/Acasa/Site/finalizare-studii/Sesiune%20iulie%202023/TST_RO.pdf</URL>
+        <Snippet>Babtan David - Adrian este menționat ca student la specializarea TST_Ro, asociat cu conducătorul științific Malutan Raul.</Snippet>
+        <Source>etti.utcluj.ro</Source>
+        <PublishedDate>2023-07-21</PublishedDate>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>

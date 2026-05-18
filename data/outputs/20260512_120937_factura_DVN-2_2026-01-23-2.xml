@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber/>
+  <InvoiceDate>23.01.2026</InvoiceDate>
+  <DueDate>- - -</DueDate>
+  <Currency/>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15, Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO10 RNCB 0857 1727 5547 0001</IBAN>
+    <Bank>BANCA COMERCIALA ROMANA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Pro Era Solutions S.R.L.</Name>
+    <TaxID>RO 43561457</TaxID>
+    <RegistrationNumber/>
+    <Address>Aleea Movileștilor, 26, Birou 1, 450146 Zalău, jud. Sălaj, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Modificări pro-era.ro</Description>
+      <Quantity/>
+      <UnitPrice>300</UnitPrice>
+      <VATRate/>
+      <NetAmount>300</NetAmount>
+      <VATAmount/>
+      <GrossAmount>300</GrossAmount>
+    </Item>
+    <Item>
+      <Description>buc</Description>
+      <Quantity/>
+      <UnitPrice>300</UnitPrice>
+      <VATRate/>
+      <NetAmount>300</NetAmount>
+      <VATAmount/>
+      <GrossAmount>300</GrossAmount>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>600</Subtotal>
+    <VATTotal/>
+    <GrandTotal>900</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ</OfficialName>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/2021</RegistrationNumber>
+    <Address>JUD. SĂLAJ, MUN. ZALĂU, STR. PIETRIŞ, NR.9, BL.D29, SC.B, ET.3, AP.15</Address>
+    <VATStatus>inactive</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 23.03.2021</CompanyStatus>
+    <CAENCode>6311</CAENCode>
+    <RiskScore>20</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Supplier name on the invoice does NOT match the official record.</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>Riviera Travel Refund - MoneySavingExpert Forum</Title>
+        <URL>https://forums.moneysavingexpert.com/discussion/6129259/riviera-travel-refund</URL>
+        <Snippet>14 apr. 2020 · Riviera Travel are issuing credits notes that can only be transferred to cash after 12 months.</Snippet>
+        <Source>forums.moneysavingexpert.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Riviera travel refund - MoneySavingExpert Forum</Title>
+        <URL>https://forums.moneysavingexpert.com/discussion/6136022/riviera-travel-refund</URL>
+        <Snippet>29 apr. 2020 · The role of a travel agent seems to be confusing people on this site at the moment. An agent is simply an introducer to the operator, once a booking is confirmed, the contract is not with the …</Snippet>
+        <Source>forums.moneysavingexpert.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>E: 31/10 Win a luxury Riviera Travel river cruise</Title>
+        <URL>https://forums.moneysavingexpert.com/discussion/6557597/e-31-10-win-a-luxury-riviera-travel-river-cruise</URL>
+        <Snippet>30 sept. 2024 · – Services of Riviera Cruise director. – FREE Superior Drinks Package. Additional T&amp;Cs: – The prize does not include travel between the winner’s home and the UK airport or Eurostar …</Snippet>
+        <Source>forums.moneysavingexpert.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>E: 18/11 win £1,000 towards river cruises and tours across the world ...</Title>
+        <URL>https://forums.moneysavingexpert.com/discussion/6632284/e-18-11-win-1-000-towards-river-cruises-and-tours-across-the-world-with-riviera-travel</URL>
+        <Snippet>3 oct. 2025 · E: 18/11 win £1,000 towards river cruises and tours across the world with Riviera Travel AC55 Posts: 5,281 Forumite</Snippet>
+        <Source>forums.moneysavingexpert.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>E: 31/10 Win a river cruise for two people with Riviera Travel</Title>
+        <URL>https://forums.moneysavingexpert.com/discussion/6627753/e-31-10-win-a-river-cruise-for-two-people-with-riviera-travel</URL>
+        <Snippet>6 sept. 2025 · Seven nights’ accommodation aboard a Riviera River Cruise ship, based on two people sharing a standard cabin Return travel between the UK and the ships port All meals on board from …</Snippet>
+        <Source>forums.moneysavingexpert.com</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>PRO ERA SOLUTIONS S.R.L.</OfficialName>
+    <TaxID>43561457</TaxID>
+    <RegistrationNumber>J2021000023318</RegistrationNumber>
+    <Address>JUD. SĂLAJ, MUN. ZALĂU, ALEEA MOVILEŞTILOR, NR.26, BIROU 1</Address>
+    <VATStatus>active</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 15.01.2021</CompanyStatus>
+    <CAENCode>4712</CAENCode>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>NIRO INSTAL SOLUTIONS SRL - Lista firmelor</Title>
+        <URL>https://www.listafirme.ro/niro-instal-solutions-srl-38935318/</URL>
+        <Snippet>27 feb. 2018 · Despre Niro Instal Solutions Srl CIF38935318 J2018000418299 STR. RAHOVEI 39. Afli adresa, telefon, email, cifra de afaceri, activitatea, etc</Snippet>
+        <Source>listafirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>ART IT SOLUTIONS AC SRL - Lista firmelor</Title>
+        <URL>https://www.listafirme.ro/art-it-solutions-ac-srl-34233868/</URL>
+        <Snippet>16 mar. 2015 · Despre Art It Solutions Ac Srl CIF34233868 J35/618/2015 138, LUNCANII DE JOS, TIMIS.Afli adresa, telefon, email, cifra de afaceri, activitatea, etc</Snippet>
+        <Source>listafirme.ro</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>pro.medicin.dk – information om medicin</Title>
+        <URL>https://pro.medicin.dk/</URL>
+        <Snippet>På pro.medicin.dk diskuterer vi løbende, hvilket indhold vi skal prioritere, og hvordan vi skal levere og formidle information om lægemidler, så den er mest releveant for dig i den kliniske hverdag.</Snippet>
+        <Source>pro.medicin.dk</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Proshop - Computer, iPad, Notebooks, Smartphones - Stort udvalg</Title>
+        <URL>https://www.proshop.dk/</URL>
+        <Snippet>Stort udvalg, billige priser og hurtig levering – Hos Proshop finder du altid de mest aktuelle produkter til de bedste priser og vi pakker ALLE ugens dage.</Snippet>
+        <Source>proshop.dk</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Proff™ – Nøgletal, Regnskaber og Roller for danske virksomheder</Title>
+        <URL>https://www.proff.dk/</URL>
+        <Snippet>Få oversigt over regnskabstal, officielle roller, aktionærer, adresser m.m. for alle virksomheder som leverer årsregnskaber til CVR-registret</Snippet>
+        <Source>proff.dk</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>

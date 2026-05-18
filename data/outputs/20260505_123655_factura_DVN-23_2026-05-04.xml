@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber>DVN-23</InvoiceNumber>
+  <InvoiceDate>04.05.2026</InvoiceDate>
+  <DueDate/>
+  <Currency>RON</Currency>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/23.03.2021</RegistrationNumber>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15 Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO10 RNCB 0857 1727 5547 0001</IBAN>
+    <Bank>BANCA COMERCIALA ROMANA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Full Out Media S.R.L.</Name>
+    <TaxID>RO 38597942</TaxID>
+    <RegistrationNumber>J2017020474405</RegistrationNumber>
+    <Address>Str Petricani, 4, Demisol. Boxa Nr. 10, București 23842 Sect 2, jud. Municipiul București, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>opalus.ro - creare site + SEO</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>3118.59</UnitPrice>
+      <VATRate/>
+      <NetAmount>3118.59</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>magazinrestartix.ro - creare site</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>3118.59</UnitPrice>
+      <VATRate/>
+      <NetAmount>3118.59</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>unicornconcept.ro - SEO produse la zi, curent active</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>207.91</UnitPrice>
+      <VATRate/>
+      <NetAmount>207.91</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>bijuteriiania.ro - Adăugare secțiune în homepage</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>103.95</UnitPrice>
+      <VATRate/>
+      <NetAmount>103.95</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>rolimag.ro - Procesare batch 100 produse</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>207.91</UnitPrice>
+      <VATRate/>
+      <NetAmount>207.91</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>sereskin.ro - Implementare blog AI</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>779.65</UnitPrice>
+      <VATRate/>
+      <NetAmount>779.65</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>cristinapreda.com - creare site</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>2598.86</UnitPrice>
+      <VATRate/>
+      <NetAmount>2598.86</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>Tokens</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>498.97</UnitPrice>
+      <VATRate/>
+      <NetAmount>498.97</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>Adaos</Description>
+      <Quantity>1</Quantity>
+      <UnitPrice>4744</UnitPrice>
+      <VATRate/>
+      <NetAmount>4744</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+    <Item>
+      <Description>Storno site aylajewelry.ro (facturat februarie)</Description>
+      <Quantity>-1</Quantity>
+      <UnitPrice>1560.43</UnitPrice>
+      <VATRate/>
+      <NetAmount>-1560.43</NetAmount>
+      <VATAmount/>
+      <GrossAmount/>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>13818</Subtotal>
+    <VATTotal/>
+    <GrandTotal>13818</GrandTotal>
+  </Totals>
+  <CompanyVerification>
+    <Verified>false</Verified>
+    <Status>error</Status>
+    <Source>anaf</Source>
+    <OfficialName/>
+    <TaxID/>
+    <RegistrationNumber/>
+    <Address/>
+    <VATStatus/>
+    <CompanyStatus/>
+    <CAENCode/>
+    <RiskScore>30</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Company could not be verified (status: error).</Warning>
+    </Warnings>
+    <OnlineMentions/>
+  </CompanyVerification>
+</Invoice>

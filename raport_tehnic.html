@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Raport Tehnic — Invoice AI Extractor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #3a3a3a;
+    --ink-muted: #6b6b6b;
+    --accent: #1d4ed8;
+    --accent-light: #dbeafe;
+    --green: #15803d;
+    --green-bg: #dcfce7;
+    --orange: #c2410c;
+    --orange-bg: #ffedd5;
+    --purple: #6d28d9;
+    --purple-bg: #ede9fe;
+    --border: #e5e7eb;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1d4ed8 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .cover-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 100px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 2rem;
+  }
+  .cover h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  .cover h1 span { color: #93c5fd; }
+  .cover .subtitle {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 620px;
+    margin-bottom: 3rem;
+  }
+  .cover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+  }
+  .cover-meta .item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .cover-meta .label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .cover-meta .value { color: rgba(255,255,255,0.9); font-weight: 500; }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 960px; margin: 0 auto; padding: 4rem 2rem; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 4rem;
+  }
+  .toc h2 { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 1.2rem; }
+  .toc ol { list-style: none; counter-reset: toc; }
+  .toc li { counter-increment: toc; padding: 0.4rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 0.8rem; }
+  .toc li:last-child { border-bottom: none; }
+  .toc li::before { content: counter(toc, decimal-leading-zero); font-size: 0.7rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; min-width: 1.5rem; }
+  .toc a { color: var(--ink-soft); text-decoration: none; font-size: 0.95rem; }
+  .toc a:hover { color: var(--accent); }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 4rem; }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section-num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+  .section h2 { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+  .section h3 { font-size: 1.15rem; font-weight: 600; color: var(--ink); margin: 2rem 0 0.8rem 0; }
+  .section h4 { font-size: 0.95rem; font-weight: 600; color: var(--ink-soft); margin: 1.2rem 0 0.4rem 0; text-transform: uppercase; letter-spacing: 0.05em; }
+  .section p { color: var(--ink-soft); margin-bottom: 1rem; }
+  .section ul, .section ol { padding-left: 1.5rem; color: var(--ink-soft); margin-bottom: 1rem; }
+  .section li { margin-bottom: 0.4rem; }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem;
+  }
+  .card .card-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .card .card-title { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.4rem; }
+  .card .card-value { font-size: 1.5rem; font-weight: 700; color: var(--ink); }
+  .card .card-desc { font-size: 0.85rem; color: var(--ink-muted); margin-top: 0.4rem; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
+  .code-header {
+    background: rgba(255,255,255,0.06);
+    padding: 0.6rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .code-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28c840; }
+  .code-body { padding: 1.2rem 1.5rem; overflow-x: auto; color: var(--code-text); }
+  .kw { color: #cba6f7; }
+  .fn { color: #89b4fa; }
+  .str { color: #a6e3a1; }
+  .cm { color: #6c7086; font-style: italic; }
+  .num { color: #fab387; }
+  .cls { color: #f9e2af; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flowchart {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+  }
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 600px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+  }
+  .flow-node {
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-align: center;
+    min-width: 180px;
+  }
+  .flow-node.start {
+    background: #0f172a;
+    border-color: #0f172a;
+    color: #fff;
+    border-radius: 100px;
+    min-width: 140px;
+  }
+  .flow-node.end {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    border-radius: 100px;
+    min-width: 140px;
+  }
+  .flow-node.decision {
+    background: #fef9c3;
+    border-color: #ca8a04;
+    color: #713f12;
+    transform: rotate(0deg);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    width: 160px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+  }
+  .flow-node.process-green {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .flow-node.process-orange {
+    background: var(--orange-bg);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .flow-node.process-purple {
+    background: var(--purple-bg);
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--ink-muted);
+    font-size: 0.72rem;
+    gap: 0.1rem;
+    padding: 0.15rem 0;
+  }
+  .flow-arrow .line {
+    width: 2px;
+    height: 28px;
+    background: #cbd5e1;
+  }
+  .flow-arrow .tip {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #cbd5e1;
+  }
+  .flow-arrow .label {
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    background: var(--bg);
+    padding: 0 0.3rem;
+    border-radius: 3px;
+    margin-top: -2px;
+  }
+  .flow-branch {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 0 1rem;
+  }
+  .flow-branch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    max-width: 200px;
+  }
+  .flow-branch-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-bottom: 0.4rem;
+    background: var(--bg);
+    padding: 0 0.4rem;
+  }
+  .flow-hline {
+    width: 100%;
+    height: 2px;
+    background: #cbd5e1;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .flow-parallel {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .flow-parallel-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead { background: #0f172a; color: #fff; }
+  thead th { padding: 0.9rem 1rem; text-align: left; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: var(--accent-light); }
+  tbody td { padding: 0.8rem 1rem; color: var(--ink-soft); vertical-align: top; }
+  td code, th code { background: #f1f5f9; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.82rem; color: var(--accent); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    margin: 1.2rem 0;
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+  }
+  .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .callout.info { background: var(--accent-light); border-left: 3px solid var(--accent); color: #1e3a8a; }
+  .callout.success { background: var(--green-bg); border-left: 3px solid var(--green); color: #14532d; }
+  .callout.warning { background: var(--orange-bg); border-left: 3px solid var(--orange); color: #7c2d12; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .badge-blue { background: var(--accent-light); color: var(--accent); }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-orange { background: var(--orange-bg); color: var(--orange); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+  /* ── MODULE CARD ── */
+  .module-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.5rem 0; }
+  .module-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem 1rem;
+  }
+  .module-card.green { border-left-color: var(--green); }
+  .module-card.orange { border-left-color: var(--orange); }
+  .module-card.purple { border-left-color: var(--purple); }
+  .module-name { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+  .module-path { font-family: 'Fira Code', monospace; font-size: 0.78rem; color: var(--ink-muted); }
+  .module-desc { font-size: 0.85rem; color: var(--ink-soft); grid-column: 1; }
+  .module-badge { grid-column: 2; grid-row: 1 / 3; display: flex; align-items: center; }
+
+  /* ── RISK TABLE ── */
+  .risk-row-low td:first-child { border-left: 4px solid var(--green); }
+  .risk-row-medium td:first-child { border-left: 4px solid #ca8a04; }
+  .risk-row-high td:first-child { border-left: 4px solid var(--orange); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0f172a;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 2.5rem 1rem;
+    font-size: 0.8rem;
+    margin-top: 4rem;
+  }
+  footer strong { color: rgba(255,255,255,0.8); }
+
+  /* ── PRINT ── */
+  @media print {
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; min-height: auto; padding: 3rem; page-break-after: always; }
+    .section { page-break-inside: avoid; }
+    .flowchart { page-break-inside: avoid; }
+    body { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ COVER ══ -->
+<div class="cover">
+  <div class="cover-badge">Lucrare de Disertație · 2026</div>
+  <h1>Invoice <span>AI</span> Extractor<br/>— Raport Tehnic —</h1>
+  <p class="subtitle">
+    Extragere automată de date din facturi PDF prin intermediul modelelor de limbaj mari (LLM),
+    cu verificare în registre publice și analiză euristică de risc
+  </p>
+  <div class="cover-meta">
+    <div class="item"><span class="label">Autor</span><span class="value">David-Adrian Babtan</span></div>
+    <div class="item"><span class="label">Instituție</span><span class="value">Universitatea Politehnica București</span></div>
+    <div class="item"><span class="label">Facultatea</span><span class="value">FAIMA</span></div>
+    <div class="item"><span class="label">Model AI</span><span class="value">OpenAI GPT-4o / GPT-4.1</span></div>
+    <div class="item"><span class="label">Data</span><span class="value">Mai 2026</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ CONTENT ══ -->
+<div class="page">
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h2>Cuprins</h2>
+    <ol>
+      <li><a href="#s1">Introducere și Motivație</a></li>
+      <li><a href="#s2">Arhitectura Generală a Sistemului</a></li>
+      <li><a href="#s3">Schema Bloc — Fluxul de Procesare</a></li>
+      <li><a href="#s4">Modulele Aplicației</a></li>
+      <li><a href="#s5">Integrarea cu OpenAI API</a></li>
+      <li><a href="#s6">Validarea Datelor cu Pydantic</a></li>
+      <li><a href="#s7">Generarea XML compatibil SAGA</a></li>
+      <li><a href="#s8">Verificarea Firmelor prin API-uri Externe</a></li>
+      <li><a href="#s9">Analiza Euristică de Risc</a></li>
+      <li><a href="#s10">Interfața Web — Streamlit</a></li>
+      <li><a href="#s11">Stack Tehnologic</a></li>
+      <li><a href="#s12">Concluzii Tehnice</a></li>
+    </ol>
+  </div>
+
+  <!-- ── §1 INTRODUCERE ── -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">§ 1</span>
+      <h2>Introducere și Motivație</h2>
+    </div>
+
+    <p>
+      <strong>Invoice AI Extractor</strong> este un sistem software complet care automatizează
+      extragerea structurată a datelor din facturi PDF — atât digitale, cât și scanate — folosind
+      modele de limbaj mari (LLM) de la OpenAI. Rezultatul este serializat în format XML compatibil
+      cu sistemul contabil <strong>SAGA</strong>, gata de import direct.
+    </p>
+    <p>
+      Problema adresată este una practică și cu impact economic direct: procesarea manuală a
+      facturilor consumă zeci de ore pe lună în orice organizație, este predispusă la erori umane
+      și nu scalează. Soluțiile OCR tradiționale (bazate pe expresii regulate sau template-uri fixe)
+      eșuează în fața diversității de formate.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">Nucleu AI</div>
+        <div class="card-value">GPT-4o / 4.1</div>
+        <div class="card-desc">Extragere semantică a câmpurilor facturii prin instrucțiuni structurate</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Verificare Firmă</div>
+        <div class="card-value">4 provideri</div>
+        <div class="card-desc">ANAF · OpenAPI.ro · ListaFirme.ro · OpenAI web search</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Scor Risc</div>
+        <div class="card-value">0 – 100</div>
+        <div class="card-desc">Indicator euristic compozit din 4 semnale independente</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <div class="card-title">Output</div>
+        <div class="card-value">XML + JSON</div>
+        <div class="card-desc">Format XML compatibil SAGA, descărcabil direct din UI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── §2 ARHITECTURA ── -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">§ 2</span>
+      <h2>Arhitectura Generală a Sistemului</h2>
+    </div>
+
+    <p>
+      Aplicația urmează o arhitectură <strong>pipeline stratificată</strong>, cu separare clară
+      a responsabilităților între module. Fiecare strat poate fi înlocuit sau extins independent,
+      fără a afecta celelalte. Principalele trei straturi sunt:
+    </p>
+
+    <div class="module-list">
+      <div class="module-card">
+        <span class="module-name">Stratul de Prezentare</span>
+        <span class="module-path">app.py</span>
+        <span class="module-desc">Interfața Streamlit: upload fișier, declanșarea pipeline-ului, afișare rezultate structurate, descărcare XML/JSON.</span>
+        <span class="module-badge"><span class="badge badge-blue">Streamlit</span></span>
+      </div>
+      <div class="module-card green">
+        <span class="module-name">Stratul de Business Logic</span>
+        <span class="module-path">src/*.py</span>
+        <span class="module-desc">Procesare PDF, extragere AI, validare Pydantic, verificare firme, analiză risc, generare XML.</span>
+        <span class="module-badge"><span class="badge badge-green">Python 3.12+</span></span>
+      </div>
+      <div class="module-card orange">
+        <span class="module-name">Stratul de Integrare</span>
+        <span class="module-path">OpenAI API / ANAF / etc.</span>
+        <span class="module-desc">Apeluri externe: LLM pentru extragere și căutare, API-uri publice pentru verificarea identității firmelor.</span>
+        <span class="module-badge"><span class="badge badge-orange">REST API</span></span>
+      </div>
+    </div>
+
+    <h3>Principii de proiectare</h3>
+    <ul>
+      <li><strong>Graceful degradation</strong> — orice eșec al unui apel extern este capturat și returnat ca <code>status="error"</code>; pipeline-ul continuă.</li>
+      <li><strong>Schema-first</strong> — toate datele trec prin modele Pydantic înainte de a fi consumate de alte module.</li>
+      <li><strong>Paralelism controlat</strong> — verificarea furnizorului și a clientului rulează simultan (<code>ThreadPoolExecutor(max_workers=2)</code>) pentru a minimiza latența.</li>
+      <li><strong>Fără state global</strong> — fiecare rulare este independentă; fișierele sunt salvate cu timestamp unic.</li>
+    </ul>
+  </div>
+
+  <!-- ── §3 SCHEMA BLOC ── -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">§ 3</span>
+      <h2>Schema Bloc — Fluxul de Procesare</h2>
+    </div>
+
+    <p>
+      Diagrama de mai jos ilustrează fluxul complet al datelor din momentul în care utilizatorul
+      încarcă un PDF și până la generarea fișierului XML final.
+    </p>
+
+    <div class="flowchart">
+      <div class="flow">
+
+        <!-- START -->
+        <div class="flow-row">
+          <div class="flow-node start">▶ START<br/><small style="font-weight:400;font-size:0.72rem;">Upload PDF</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- SAVE -->
+        <div class="flow-row">
+          <div class="flow-node">📁 Salvare fișier<br/><small style="font-weight:400;font-size:0.72rem;">utils.save_uploaded_file()</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- EXTRACT TEXT -->
+        <div class="flow-row">
+          <div class="flow-node process-green">🔤 Extragere text local<br/><small style="font-weight:400;font-size:0.72rem;">PyMuPDF · fitz.open()</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- DECISION: sufficient? -->
+        <div class="flow-row">
+          <div class="flow-node decision">Text<br/>suficient?</div>
+        </div>
+
+        <!-- BRANCH -->
+        <div style="display:flex; width:100%; justify-content:center; gap:0; max-width:500px; margin: 0 auto; position:relative;">
+          <div class="flow-hline" style="position:absolute;top:0;left:0;right:0;"></div>
+          <div style="display:flex;width:50%;flex-direction:column;align-items:center;gap:0;padding-top:2px;">
+            <div class="flow-arrow"><div class="label">DA ✓</div><div class="line" style="height:22px;"></div><div class="tip"></div></div>
+            <div class="flow-node process-green" style="min-width:160px;font-size:0.8rem;">📝 Text Mode<br/><small style="font-weight:400;">extract_from_text()</small></div>
+          </div>
+          <div style="display:flex;width:50%;flex-direction:column;align-items:center;gap:0;padding-top:2px;">
+            <div class="flow-arrow"><div class="label">NU ✗</div><div class="line" style="height:22px;"></div><div class="tip"></div></div>
+            <div class="flow-node process-orange" style="min-width:160px;font-size:0.8rem;">🖼 Vision Mode<br/><small style="font-weight:400;">PDF → PNG → Vision</small></div>
+          </div>
+        </div>
+
+        <div class="flow-arrow" style="margin-top:0.5rem;"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- OPENAI CALL -->
+        <div class="flow-row">
+          <div class="flow-node process-purple">🤖 OpenAI API Call<br/><small style="font-weight:400;font-size:0.72rem;">GPT-4o · JSON mode · temperature=0</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- VALIDATE -->
+        <div class="flow-row">
+          <div class="flow-node">✅ Validare Pydantic<br/><small style="font-weight:400;font-size:0.72rem;">InvoiceData.model_validate()</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- PARALLEL VERIFICATION -->
+        <div class="flow-row">
+          <div class="flow-node process-orange">⚡ Verificare Paralelă (ThreadPool)<br/><small style="font-weight:400;font-size:0.72rem;">Furnizor ‖ Client · max_workers=2</small></div>
+        </div>
+
+        <div style="display:flex; width:100%; justify-content:center; gap:0; max-width:500px; margin: 0 auto; position:relative;">
+          <div class="flow-hline" style="position:absolute;top:0;left:0;right:0;"></div>
+          <div style="display:flex;width:33%;flex-direction:column;align-items:center;gap:0;padding-top:2px;">
+            <div class="flow-arrow"><div class="line" style="height:22px;"></div><div class="tip"></div></div>
+            <div class="flow-node" style="min-width:130px;font-size:0.75rem;padding:0.5rem 0.7rem;">🏢 Verificare<br/>registru public</div>
+          </div>
+          <div style="display:flex;width:33%;flex-direction:column;align-items:center;gap:0;padding-top:2px;">
+            <div class="flow-arrow"><div class="line" style="height:22px;"></div><div class="tip"></div></div>
+            <div class="flow-node" style="min-width:130px;font-size:0.75rem;padding:0.5rem 0.7rem;">🔎 Căutare<br/>online</div>
+          </div>
+          <div style="display:flex;width:33%;flex-direction:column;align-items:center;gap:0;padding-top:2px;">
+            <div class="flow-arrow"><div class="line" style="height:22px;"></div><div class="tip"></div></div>
+            <div class="flow-node" style="min-width:130px;font-size:0.75rem;padding:0.5rem 0.7rem;">⚠️ Scor<br/>de risc</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow" style="margin-top:0.5rem;"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- XML GEN -->
+        <div class="flow-row">
+          <div class="flow-node process-green">📦 Generare XML<br/><small style="font-weight:400;font-size:0.72rem;">generate_invoice_xml() · minidom pretty-print</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- VALIDATE XML -->
+        <div class="flow-row">
+          <div class="flow-node">🔐 Validare XML<br/><small style="font-weight:400;font-size:0.72rem;">ET.fromstring() · well-formed check</small></div>
+        </div>
+
+        <div class="flow-arrow"><div class="line"></div><div class="tip"></div></div>
+
+        <!-- END -->
+        <div class="flow-row">
+          <div class="flow-node end">■ END<br/><small style="font-weight:400;font-size:0.72rem;">XML + JSON afișat · descărcabil</small></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <span>Decizia <strong>Text suficient?</strong> se bazează pe două criterii: lungimea textului ≥ <code>MIN_TEXT_LENGTH</code> (configurabil în <code>.env</code>) și prezența cel puțin a unui cuvânt-cheie specific facturii (<em>factura, invoice, total, tva, cui, vat</em> etc.).</span>
+    </div>
+  </div>
+
+  <!-- ── §4 MODULE ── -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">§ 4</span>
+      <h2>Modulele Aplicației</h2>
+    </div>
+
+    <p>Codul sursă este organizat în directorul <code>src/</code> cu separare strictă a responsabilităților (principiul <em>Single Responsibility</em>):</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Modul</th>
+            <th>Responsabilitate principală</th>
+            <th>Tehnologii</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>pdf_processor.py</code></td>
+            <td>Extragere text din PDF; conversie pagini → PNG pentru Vision; decizie hibridă text/vision</td>
+            <td>PyMuPDF (fitz)</td>
+          </tr>
+          <tr>
+            <td><code>openai_extractor.py</code></td>
+            <td>Construcție prompt; apel GPT-4o în mod JSON; parsare răspuns; suport text + Vision multimodal</td>
+            <td>openai SDK</td>
+          </tr>
+          <tr>
+            <td><code>schema.py</code></td>
+            <td>Definire modele de date Pydantic: <code>InvoiceData</code>, <code>Supplier</code>, <code>Customer</code>, <code>InvoiceItem</code>, <code>Totals</code>, <code>CompanyVerification</code>, <code>CompanyRiskAnalysis</code>, <code>OnlineMention</code></td>
+            <td>Pydantic v2</td>
+          </tr>
+          <tr>
+            <td><code>validators.py</code></td>
+            <td>Validare structură JSON → Pydantic; validare XML well-formed; excepții tipizate</td>
+            <td>Pydantic, xml.etree</td>
+          </tr>
+          <tr>
+            <td><code>xml_generator.py</code></td>
+            <td>Construcție arbore XML deterministic; pretty-print minidom; serializare verificare + risc + mențiuni</td>
+            <td>xml.etree.ElementTree, minidom</td>
+          </tr>
+          <tr>
+            <td><code>company_verifier.py</code></td>
+            <td>Dispatcher multi-provider: ANAF, OpenAPI.ro, ListaFirme.ro, OpenAI web search; fallback automat; comparație câmpuri factură ↔ registru</td>
+            <td>requests, openai SDK</td>
+          </tr>
+          <tr>
+            <td><code>company_risk_analyzer.py</code></td>
+            <td>Calcul scor de risc euristic 0–100; vocabular negativ; bucketizare low/medium/high</td>
+            <td>Python stdlib</td>
+          </tr>
+          <tr>
+            <td><code>company_news_search.py</code></td>
+            <td>Căutare prezență online a firmei; backend OpenAI web_search_preview + fallback Google CSE; clasificare mențiuni pe tip</td>
+            <td>openai SDK, requests</td>
+          </tr>
+          <tr>
+            <td><code>utils.py</code></td>
+            <td>Funcții auxiliare: creare directoare, salvare fișiere, timestamp, curățare JSON cu markdown, codare base64 imagini</td>
+            <td>Python stdlib</td>
+          </tr>
+          <tr>
+            <td><code>config.py</code></td>
+            <td>Citire variabile de mediu din <code>.env</code>; constante de configurare</td>
+            <td>python-dotenv</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── §5 OPENAI ── -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">§ 5</span>
+      <h2>Integrarea cu OpenAI API</h2>
+    </div>
+
+    <p>
+      Sistemul folosește OpenAI API în trei contexte distincte, fiecare cu un prompt engineering specific:
+    </p>
+
+    <h3>5.1 — Extragere date factură (modul text)</h3>
+    <p>
+      Când PDF-ul conține text digital suficient, acesta este trimis direct modelului GPT-4o prin
+      <code>chat.completions.create()</code> cu <code>response_format={"type": "json_object"}</code>.
+      Aceasta forțează modelul să returneze <em>exclusiv</em> JSON valid, eliminând riscul de
+      răspunsuri cu text liber sau Markdown.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/openai_extractor.py — extract_invoice_from_text()</span>
+      </div>
+      <div class="code-body"><pre><span class="cm"># temperature=0 → răspuns determinist, reproductibil</span>
+response = client.chat.completions.<span class="fn">create</span>(
+    model=OPENAI_MODEL,
+    temperature=<span class="num">0</span>,
+    response_format={<span class="str">"type"</span>: <span class="str">"json_object"</span>},
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: SYSTEM_PROMPT},
+        {<span class="str">"role"</span>: <span class="str">"user"</span>,   <span class="str">"content"</span>: user_prompt},
+    ],
+)</pre></div>
+    </div>
+
+    <h3>5.2 — Extragere date factură (modul Vision)</h3>
+    <p>
+      Facturile scanate sunt convertite la imagini PNG (DPI 200, zoom ≈ 2.78×) și trimise
+      ca payload multimodal cu <code>image_url + detail: "high"</code>. Modelul vizualizează
+      fiecare pagină și extrage datele cu aceeași schemă JSON.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/openai_extractor.py — extract_invoice_from_images()</span>
+      </div>
+      <div class="code-body"><pre><span class="cm"># Payload multimodal: text instrucțiuni + N imagini base64</span>
+user_content = [
+    {<span class="str">"type"</span>: <span class="str">"text"</span>, <span class="str">"text"</span>: instrucțiuni + JSON_SCHEMA},
+    <span class="cm"># pentru fiecare pagină PNG:</span>
+    {
+        <span class="str">"type"</span>: <span class="str">"image_url"</span>,
+        <span class="str">"image_url"</span>: {
+            <span class="str">"url"</span>: <span class="fn">f</span><span class="str">"data:image/png;base64,{b64}"</span>,
+            <span class="str">"detail"</span>: <span class="str">"high"</span>,  <span class="cm"># rezoluție maximă pt. text mic</span>
+        }
+    }
+]</pre></div>
+    </div>
+
+    <h3>5.3 — Verificare firmă prin web search</h3>
+    <p>
+      Pentru verificarea furnizorilor/clienților, sistemul folosește <strong>Responses API</strong>
+      cu toolul <code>web_search_preview</code>. Modelul execută căutarea web intern și returnează
+      un JSON structurat cu datele firmei din registrele naționale (ANAF, ONRC, etc.).
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/company_verifier.py — verify_company_openai()</span>
+      </div>
+      <div class="code-body"><pre>response = client.responses.<span class="fn">create</span>(
+    model=OPENAI_MODEL,
+    tools=[{<span class="str">"type"</span>: <span class="str">"web_search_preview"</span>}],
+    input=instruction,   <span class="cm"># include country_hint + registries</span>
+)</pre></div>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <span>
+        <strong>Fallback automat:</strong> dacă providerul primar (ANAF, OpenAPI.ro) eșuează din cauza
+        WAF-ului sau a lipsei cheii API, sistemul comută automat pe backend-ul OpenAI web search,
+        fără intervenția utilizatorului.
+      </span>
+    </div>
+
+    <h3>5.4 — Prompt engineering — principii aplicate</h3>
+    <ul>
+      <li><strong>Schema explicită în prompt</strong> — structura JSON dorită este inclusă integral în fiecare mesaj, nu doar descrisă verbal.</li>
+      <li><strong>Instrucțiune negativă</strong> — modelul este explicit instruit să nu inventeze date: <em>"nu inventezi și nu deduci date care nu sunt scrise"</em>.</li>
+      <li><strong><code>temperature=0</code></strong> — elimină stochasticitatea răspunsului; același PDF → același JSON.</li>
+      <li><strong>Separare system/user</strong> — rolul <code>system</code> stabilește identitatea asistentului; rolul <code>user</code> furnizează datele de intrare.</li>
+      <li><strong>Null over hallucination</strong> — câmpurile lipsă sunt explicit <code>null</code>, nu estimate.</li>
+    </ul>
+  </div>
+
+  <!-- ── §6 PYDANTIC ── -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">§ 6</span>
+      <h2>Validarea Datelor cu Pydantic</h2>
+    </div>
+
+    <p>
+      Pydantic v2 joacă rolul unui <strong>contract de date</strong> între modulul de extragere AI
+      și restul sistemului. Toate câmpurile sunt <code>Optional</code> — extragerea parțială este
+      un comportament normal, nu o eroare.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/schema.py — structura InvoiceData (simplificat)</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">class</span> <span class="cls">InvoiceData</span>(BaseModel):
+    model_config = ConfigDict(extra=<span class="str">"ignore"</span>)  <span class="cm"># câmpuri extra ignorate</span>
+
+    invoice_number: Optional[str] = <span class="kw">None</span>
+    invoice_date:   Optional[str] = <span class="kw">None</span>
+    currency:       Optional[str] = <span class="kw">None</span>
+
+    supplier: <span class="cls">Supplier</span>      = Field(default_factory=Supplier)
+    customer: <span class="cls">Customer</span>      = Field(default_factory=Customer)
+    items:    List[<span class="cls">InvoiceItem</span>] = Field(default_factory=list)
+    totals:   <span class="cls">Totals</span>         = Field(default_factory=Totals)
+
+    <span class="cm"># Extensia de verificare (adăugată post-extragere)</span>
+    supplier_verification: Optional[<span class="cls">CompanyVerification</span>] = <span class="kw">None</span>
+    supplier_risk_analysis: Optional[<span class="cls">CompanyRiskAnalysis</span>] = <span class="kw">None</span></pre></div>
+    </div>
+
+    <h3>Ierarhia modelelor de date</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th>Câmpuri cheie</th><th>Utilizare</th></tr></thead>
+        <tbody>
+          <tr><td><code>Supplier</code></td><td>name, tax_id, registration_number, address, iban, bank</td><td>Date furnizor din factură</td></tr>
+          <tr><td><code>Customer</code></td><td>name, tax_id, registration_number, address</td><td>Date client din factură</td></tr>
+          <tr><td><code>InvoiceItem</code></td><td>description, quantity, unit_price, vat_rate, net_amount, vat_amount, gross_amount</td><td>Linie din factură</td></tr>
+          <tr><td><code>Totals</code></td><td>subtotal, vat_total, grand_total</td><td>Totaluri factură</td></tr>
+          <tr><td><code>CompanyVerification</code></td><td>verified, status, official_name, tax_id, vat_status, company_status, caen_code</td><td>Rezultat verificare registru</td></tr>
+          <tr><td><code>CompanyRiskAnalysis</code></td><td>risk_score (0–100), risk_level, warnings[]</td><td>Analiză euristică risc</td></tr>
+          <tr><td><code>OnlineMention</code></td><td>title, url, snippet, source, mention_type</td><td>Rezultat căutare online</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <span>
+        <code>ConfigDict(extra="ignore")</code> pe fiecare model asigură că un răspuns OpenAI cu câmpuri
+        suplimentare neașteptate nu aruncă excepție — sistemul ignoră silențios câmpurile necunoscute.
+      </span>
+    </div>
+  </div>
+
+  <!-- ── §7 XML ── -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">§ 7</span>
+      <h2>Generarea XML compatibil SAGA</h2>
+    </div>
+
+    <p>
+      Generarea XML este <strong>deterministă și locală</strong> — nu implică niciun apel AI.
+      Folosește <code>xml.etree.ElementTree</code> pentru construcția arborelui și
+      <code>xml.dom.minidom</code> pentru formatarea indentată a output-ului final.
+    </p>
+
+    <h3>Structura documentului XML generat</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>Exemplu output XML (structură)</span>
+      </div>
+      <div class="code-body"><pre><span class="str">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="kw">&lt;Invoice&gt;</span>
+  <span class="fn">&lt;InvoiceNumber&gt;</span>DVN-23<span class="fn">&lt;/InvoiceNumber&gt;</span>
+  <span class="fn">&lt;InvoiceDate&gt;</span>2026-05-04<span class="fn">&lt;/InvoiceDate&gt;</span>
+  <span class="fn">&lt;Currency&gt;</span>RON<span class="fn">&lt;/Currency&gt;</span>
+  <span class="fn">&lt;Supplier&gt;</span>
+    <span class="fn">&lt;Name&gt;</span>...<span class="fn">&lt;/Name&gt;</span>
+    <span class="fn">&lt;TaxID&gt;</span>RO12345678<span class="fn">&lt;/TaxID&gt;</span>
+    <span class="fn">&lt;IBAN&gt;</span>RO49 AAAA ...<span class="fn">&lt;/IBAN&gt;</span>
+  <span class="fn">&lt;/Supplier&gt;</span>
+  <span class="fn">&lt;Items&gt;</span>
+    <span class="fn">&lt;Item&gt;</span>
+      <span class="fn">&lt;Description&gt;</span>Servicii consultanță<span class="fn">&lt;/Description&gt;</span>
+      <span class="fn">&lt;Quantity&gt;</span>1<span class="fn">&lt;/Quantity&gt;</span>
+      <span class="fn">&lt;VATRate&gt;</span>19<span class="fn">&lt;/VATRate&gt;</span>
+      <span class="fn">&lt;GrossAmount&gt;</span>1190<span class="fn">&lt;/GrossAmount&gt;</span>
+    <span class="fn">&lt;/Item&gt;</span>
+  <span class="fn">&lt;/Items&gt;</span>
+  <span class="fn">&lt;SupplierVerification&gt;</span>
+    <span class="fn">&lt;Verified&gt;</span>true<span class="fn">&lt;/Verified&gt;</span>
+    <span class="fn">&lt;RiskScore&gt;</span>10<span class="fn">&lt;/RiskScore&gt;</span>
+    <span class="fn">&lt;RiskLevel&gt;</span>low<span class="fn">&lt;/RiskLevel&gt;</span>
+    <span class="fn">&lt;OnlineMentions&gt;</span>...<span class="fn">&lt;/OnlineMentions&gt;</span>
+  <span class="fn">&lt;/SupplierVerification&gt;</span>
+<span class="kw">&lt;/Invoice&gt;</span></pre></div>
+    </div>
+
+    <p>
+      Funcția <code>safe_text()</code> normalizează toate valorile înainte de inserție:
+      <code>None → ""</code>, <code>float → 4 zecimale fără zerouri finale</code>,
+      <code>bool → "true"/"false"</code>. Caracterele speciale XML (<code>&lt; &gt; &amp;</code>)
+      sunt escapate automat de ElementTree.
+    </p>
+  </div>
+
+  <!-- ── §8 COMPANY VERIFIER ── -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">§ 8</span>
+      <h2>Verificarea Firmelor prin API-uri Externe</h2>
+    </div>
+
+    <p>
+      Modulul <code>company_verifier.py</code> implementează un <strong>dispatcher multi-provider</strong>
+      cu fallback automat. Providerul se configurează prin variabila de mediu
+      <code>COMPANY_API_PROVIDER</code>.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Provider</th><th>Endpoint</th><th>Autentificare</th><th>Observații</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-blue">openai</span></td>
+            <td>Responses API + web_search_preview</td>
+            <td>OPENAI_API_KEY</td>
+            <td>Funcționează de pe orice rețea; caută ANAF, ONRC, listafirme.ro, termene.ro; suport multi-țară</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-green">anaf</span></td>
+            <td>webservicesp.anaf.ro/api/.../v9/ws/tva</td>
+            <td>public (opțional token)</td>
+            <td>API public ANAF; detectare WAF block; payload POST cu CUI + dată</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-orange">openapi</span></td>
+            <td>api.openapi.ro/v1/companies/{cif}</td>
+            <td>x-api-key header</td>
+            <td>Serviciu comercial; răspuns bogat cu CAEN, status, adresă</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-purple">listafirme</span></td>
+            <td>listafirme.ro/api/info-firma.asp</td>
+            <td>COMPANY_API_KEY param</td>
+            <td>Serviciu comercial românesc; fallback pentru OpenAPI.ro</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Logica de fallback</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/company_verifier.py — verify_company() — fallback logic</span>
+      </div>
+      <div class="code-body"><pre><span class="cm"># Dacă providerul primar eșuează AND avem OPENAI_API_KEY:</span>
+<span class="kw">if</span> (
+    provider != <span class="str">"openai"</span>
+    <span class="kw">and</span> primary.status <span class="kw">in</span> (<span class="str">"error"</span>, <span class="str">"not_configured"</span>)
+    <span class="kw">and</span> OPENAI_API_KEY
+):
+    fallback = <span class="fn">verify_company_openai</span>(company_name, tax_id)
+    <span class="kw">if</span> fallback.verified <span class="kw">or</span> fallback.status == <span class="str">"not_found"</span>:
+        <span class="kw">return</span> fallback  <span class="cm"># înlocuiește rezultatul primar</span></pre></div>
+    </div>
+
+    <h3>Normalizarea CUI-ului românesc</h3>
+    <p>
+      Funcția <code>normalize_tax_id()</code> elimină spațiile și prefixul opțional <code>RO</code>
+      (folosit pentru firmele plătitoare de TVA), returnând codul numeric pur necesar API-urilor.
+    </p>
+
+    <h3>Compararea câmpurilor factură ↔ registru</h3>
+    <p>
+      Funcția <code>compare_invoice_supplier_with_verified_data()</code> compară:
+    </p>
+    <ul>
+      <li><strong>Nume</strong> — comparație fuzzy la nivel de slug (doar alfanumerice, lowercase), cu relație de subșir</li>
+      <li><strong>Tax ID</strong> — comparație exactă după normalizare</li>
+      <li><strong>Adresă</strong> — overlap de tokeni ≥ 1/3 din minimum (rezistentă la diferențe de format)</li>
+    </ul>
+  </div>
+
+  <!-- ── §9 RISK ── -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">§ 9</span>
+      <h2>Analiza Euristică de Risc</h2>
+    </div>
+
+    <p>
+      Modulul <code>company_risk_analyzer.py</code> calculează un <strong>scor de risc 0–100</strong>
+      din patru semnale independente, agregate aditiv. Scorul final este binarizat în trei niveluri:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Semnal</th><th>Penalizare</th><th>Condiție</th></tr></thead>
+        <tbody>
+          <tr class="risk-row-low">
+            <td>Firma neverificată</td>
+            <td><strong>+30 pct.</strong></td>
+            <td>status ∉ {verified, not_configured, disabled}</td>
+          </tr>
+          <tr class="risk-row-high">
+            <td>Status juridic inactiv</td>
+            <td><strong>+50 pct.</strong></td>
+            <td>company_status conține: radiat, suspendat, lichidare, faliment…</td>
+          </tr>
+          <tr class="risk-row-medium">
+            <td>Tax ID nepotrivit</td>
+            <td><strong>+40 pct.</strong></td>
+            <td>tax_id din factură ≠ tax_id din registru (după normalizare)</td>
+          </tr>
+          <tr class="risk-row-medium">
+            <td>Nume nepotrivit</td>
+            <td><strong>+20 pct.</strong></td>
+            <td>Slug-ul numelui din factură nu se potrivește cu registrul</td>
+          </tr>
+          <tr class="risk-row-low">
+            <td>Mențiune negativă online</td>
+            <td><strong>+10 pct. / articol</strong></td>
+            <td>titlu/snippet conține termeni din vocabularul de risc</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Vocabularul de risc (bilingv RO/EN)</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>src/company_risk_analyzer.py — NEGATIVE_TERMS</span>
+      </div>
+      <div class="code-body"><pre>NEGATIVE_TERMS = (
+    <span class="str">"insolvență"</span>, <span class="str">"faliment"</span>, <span class="str">"dosar penal"</span>,
+    <span class="str">"anchetă"</span>, <span class="str">"fraudă"</span>, <span class="str">"executare silită"</span>,
+    <span class="str">"datorii"</span>, <span class="str">"dizolvat"</span>, <span class="str">"lichidare"</span>,
+    <span class="cm"># English equivalents:</span>
+    <span class="str">"bankruptcy"</span>, <span class="str">"fraud"</span>, <span class="str">"lawsuit"</span>, <span class="str">"investigation"</span>,
+)
+
+INACTIVE_STATUS_TERMS = (
+    <span class="str">"inactiv"</span>, <span class="str">"radiat"</span>, <span class="str">"suspendat"</span>,
+    <span class="str">"dizolvat"</span>, <span class="str">"lichidare"</span>, <span class="str">"faliment"</span>,
+)</pre></div>
+    </div>
+
+    <h3>Bucketizarea scorului</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="color:var(--green);">🟢</div>
+        <div class="card-title">Low Risk</div>
+        <div class="card-value" style="color:var(--green);">0 – 30</div>
+        <div class="card-desc">Firma verificată, activă, câmpuri corecte, fără mențiuni negative</div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="color:#ca8a04;">🟡</div>
+        <div class="card-title">Medium Risk</div>
+        <div class="card-value" style="color:#ca8a04;">31 – 65</div>
+        <div class="card-desc">Discrepanțe minore sau mențiuni suspecte online</div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="color:var(--orange);">🔴</div>
+        <div class="card-title">High Risk</div>
+        <div class="card-value" style="color:var(--orange);">66 – 100</div>
+        <div class="card-desc">Firmă inactivă/radiată sau nepotrivire CUI critică</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <span>Scorul de risc este un <strong>indicator academic euristic</strong>, nu un instrument de decizie financiară sau juridică. Este destinat exclusiv în scopuri educaționale și de cercetare.</span>
+    </div>
+  </div>
+
+  <!-- ── §10 STREAMLIT ── -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">§ 10</span>
+      <h2>Interfața Web — Streamlit</h2>
+    </div>
+
+    <p>
+      Interfața utilizator este construită cu <strong>Streamlit 1.30+</strong> și extinsă cu
+      CSS custom injectat prin <code>st.markdown(..., unsafe_allow_html=True)</code>.
+      Design-ul urmărește un registru editorial tipografic (tipăritură academică digitală).
+    </p>
+
+    <h3>Componente de UI</h3>
+    <ul>
+      <li><strong>Title page</strong> — antet universitar cu logo-uri UPB și FAIMA (base64 embeds)</li>
+      <li><strong>Bibliographic strip</strong> — autor, coordonator, locație/dată apărare</li>
+      <li><strong>File uploader</strong> — <code>st.file_uploader(type=["pdf"])</code></li>
+      <li><strong>Progress bar</strong> — 8 etape cu mesaje descriptive (0% → 100%)</li>
+      <li><strong>Run metadata strip</strong> — metodă extragere, câmpuri detectate, elemente, timp total</li>
+      <li><strong>Tabs</strong> — XML output · Structured data (JSON) · Source text · Company verification</li>
+      <li><strong>Download buttons</strong> — XML și JSON descărcabile direct</li>
+      <li><strong>Risk bands</strong> — CSS cards cu culori semantice (green/yellow/red)</li>
+      <li><strong>Online mentions</strong> — carduri cu tip (website/registry/social/news), domeniu, dată, snippet</li>
+    </ul>
+
+    <h3>Stilizare CSS custom — variabile de temă</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>app.py — CSS custom variables (design tokens)</span>
+      </div>
+      <div class="code-body"><pre>:root {
+    --paper:       #fdfcf9;   <span class="cm">/* fond principal */</span>
+    --paper-deep:  #f7f4ef;   <span class="cm">/* fond adânc */</span>
+    --ink:         #1a1714;   <span class="cm">/* text principal */</span>
+    --ink-quiet:   #6e6762;   <span class="cm">/* text secundar */</span>
+    --accent:      #b5411a;   <span class="cm">/* roșu editorial */</span>
+    --ok:          #2d6a2d;   <span class="cm">/* verde status OK */</span>
+    --warn:        #7a5200;   <span class="cm">/* galben atenție */</span>
+}</pre></div>
+    </div>
+
+    <h3>Gestionarea erorilor în UI</h3>
+    <p>
+      Fiecare excepție tipizată are un handler specific în blocul <code>try/except</code> din <code>main()</code>:
+      <code>FileNotFoundError</code>, <code>ValueError</code>, <code>InvoiceValidationError</code>,
+      <code>XMLValidationError</code>, <code>RuntimeError</code> și un catch-all cu
+      <code>st.exception(exc)</code> pentru erori neașteptate.
+    </p>
+  </div>
+
+  <!-- ── §11 STACK ── -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">§ 11</span>
+      <h2>Stack Tehnologic</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Librărie</th><th>Versiune</th><th>Rol în sistem</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>streamlit</code></td><td>≥ 1.30</td><td>Framework UI web; server ASGI intern (Starlette + Uvicorn)</td></tr>
+          <tr><td><code>openai</code></td><td>≥ 1.12</td><td>Client oficial OpenAI; Chat Completions + Responses API</td></tr>
+          <tr><td><code>pymupdf (fitz)</code></td><td>≥ 1.23</td><td>Extragere text din PDF; rasterizare pagini la PNG</td></tr>
+          <tr><td><code>pdfplumber</code></td><td>≥ 0.10</td><td>Extragere tabelară alternativă (disponibil ca fallback)</td></tr>
+          <tr><td><code>pydantic</code></td><td>≥ 2.5</td><td>Validare și serializare modele de date; contract schema</td></tr>
+          <tr><td><code>python-dotenv</code></td><td>≥ 1.0</td><td>Citire configurare din fișier <code>.env</code></td></tr>
+          <tr><td><code>requests</code></td><td>≥ 2.31</td><td>Apeluri HTTP sincrone către ANAF, OpenAPI.ro, ListaFirme.ro</td></tr>
+          <tr><td><code>lxml</code></td><td>≥ 4.9</td><td>Parsare XML avansată (disponibil pentru validare schemă XSD)</td></tr>
+          <tr><td><code>Pillow</code></td><td>≥ 10.0</td><td>Procesare imagini PNG generate din PDF</td></tr>
+          <tr><td><code>pytest</code></td><td>≥ 7.4</td><td>Suită de teste unitare și de integrare</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Structura directorului</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+        <span>Structura proiectului</span>
+      </div>
+      <div class="code-body"><pre>invoice-ai-extractor/
+├── app.py                   <span class="cm"># Entry point Streamlit</span>
+├── requirements.txt         <span class="cm"># Dependențe Python</span>
+├── .env                     <span class="cm"># Chei API (gitignored)</span>
+├── src/
+│   ├── config.py            <span class="cm"># Configurare centralizată</span>
+│   ├── schema.py            <span class="cm"># Modele Pydantic</span>
+│   ├── pdf_processor.py     <span class="cm"># Procesare PDF</span>
+│   ├── openai_extractor.py  <span class="cm"># Extragere AI</span>
+│   ├── validators.py        <span class="cm"># Validare date + XML</span>
+│   ├── xml_generator.py     <span class="cm"># Generare XML</span>
+│   ├── company_verifier.py  <span class="cm"># Verificare firme</span>
+│   ├── company_risk_analyzer.py  <span class="cm"># Scor risc</span>
+│   ├── company_news_search.py    <span class="cm"># Căutare online</span>
+│   └── utils.py             <span class="cm"># Funcții auxiliare</span>
+├── data/
+│   ├── uploads/             <span class="cm"># PDF-uri încărcate</span>
+│   └── outputs/             <span class="cm"># XML-uri generate</span>
+└── tests/
+    └── test_xml_generator.py</pre></div>
+    </div>
+  </div>
+
+  <!-- ── §12 CONCLUZII ── -->
+  <div class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">§ 12</span>
+      <h2>Concluzii Tehnice</h2>
+    </div>
+
+    <p>
+      Sistemul demonstrează că un pipeline <strong>hibrid PDF → LLM → XML</strong> poate înlocui
+      cu succes procesarea manuală a facturilor, oferind simultan:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Robustețe</strong> față de diversitatea formatelor — același sistem procesează atât
+        facturi digitale (text layer) cât și scanate (Vision multimodal), fără configurare per-template.
+      </li>
+      <li>
+        <strong>Transparență</strong> — fiecare decizie de clasificare a riscului este explicată
+        prin mesaje de warning specifice, nu doar un scor opac.
+      </li>
+      <li>
+        <strong>Extensibilitate</strong> — adăugarea unui nou provider de verificare firmă necesită
+        o singură funcție nouă și un entry în dispatcherul <code>verify_company()</code>.
+      </li>
+      <li>
+        <strong>Reziliență</strong> — nicio eroare externă nu blochează pipeline-ul; toate eșecurile
+        sunt gestionate și raportate în UI fără a pierde rezultatele deja computate.
+      </li>
+      <li>
+        <strong>Reproductibilitate</strong> — <code>temperature=0</code> și schema strictă JSON
+        asigură că același PDF produce același output la rulări repetate.
+      </li>
+    </ul>
+
+    <h3>Limitări cunoscute și direcții de dezvoltare</h3>
+    <ul>
+      <li>Scorul de risc este euristic — nu are validare statistică pe un dataset real de facturi frauduloase.</li>
+      <li>Costul per factură depinde de lungimea textului și de numărul de apeluri API (2–4 apeluri OpenAI/factură).</li>
+      <li>Suportul pentru facturi în limbi non-europene poate necesita ajustări de prompt.</li>
+      <li>Integrarea directă cu SAGA (import automat XML) ar elimina pasul manual de import.</li>
+    </ul>
+
+    <div class="callout success">
+      <span class="callout-icon">🎓</span>
+      <span>
+        Proiectul contribuie cu o <strong>abordare aplicată a LLM-urilor în automatizarea proceselor de business</strong>,
+        combinând ingineria prompt-urilor, validarea formală a datelor și integrarea cu registre publice
+        românești — o intersecție mai puțin explorată în literatura de specialitate curentă.
+      </span>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>
+  <strong>Invoice AI Extractor</strong> — Raport Tehnic pentru Lucrare de Disertație<br/>
+  Universitatea Politehnica București · Facultatea FAIMA · Programul de Master · Mai 2026<br/>
+  <span style="font-size:0.72rem;opacity:0.5;margin-top:0.4rem;display:block;">
+    Generat automat · Stack: Python 3.12 · OpenAI GPT-4o · PyMuPDF · Pydantic v2 · Streamlit · xml.etree
+  </span>
+</footer>
+
+</body>
+</html>

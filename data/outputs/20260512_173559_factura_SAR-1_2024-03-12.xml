@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber/>
+  <InvoiceDate>12.03.2024</InvoiceDate>
+  <DueDate>- - -</DueDate>
+  <Currency/>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15, Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO61 BTRL RONC RT05 2425 3101</IBAN>
+    <Bank>BANCA TRANSILVANIA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Soare Leila Consulting S.R.L.</Name>
+    <TaxID>46810889</TaxID>
+    <RegistrationNumber/>
+    <Address>Calea Turzii, 188l, Et:4, Ap:22, Provizoriu, Cluj-napoca, jud. Cluj, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Generare AWB Sameday - Wix</Description>
+      <Quantity/>
+      <UnitPrice>2000</UnitPrice>
+      <VATRate/>
+      <NetAmount>2000</NetAmount>
+      <VATAmount/>
+      <GrossAmount>4000</GrossAmount>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal/>
+    <VATTotal/>
+    <GrandTotal>8000</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ</OfficialName>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/2021</RegistrationNumber>
+    <Address>JUD. SĂLAJ, MUN. ZALĂU, STR. PIETRIŞ, NR.9, BL.D29, SC.B, ET.3, AP.15</Address>
+    <VATStatus>inactive</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 23.03.2021</CompanyStatus>
+    <CAENCode>6311</CAENCode>
+    <RiskScore>20</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Supplier name on the invoice does NOT match the official record.</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>Dafi Alfadila on LinkedIn: #oneasia</Title>
+        <URL>https://www.linkedin.com/posts/dafi-alfadila-43964751_oneasia-activity-7272111092238053377-i3jm</URL>
+        <Snippet>9 dec. 2024 · Closing the year with (more) good news in the form of gold and silver . Congrats and arigato to all involved 🫰 …</Snippet>
+        <Source>linkedin.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Sign in to your account - Outlook</Title>
+        <URL>https://outlook.office365.com/mail/login.html?authRedirect=true&amp;bO=1</URL>
+        <Snippet>Sign in to your Outlook account to manage emails and access Office 365 services.</Snippet>
+        <Source>outlook.office365.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Microsoft Outlook Personal Email and Calendar | Microsoft 365</Title>
+        <URL>https://www.outlook.com/</URL>
+        <Snippet>Download free Microsoft Outlook email and calendar, plus Office Online apps like Word, Excel, and PowerPoint. Sign in to access …</Snippet>
+        <Source>outlook.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Outlook Log In | Microsoft 365</Title>
+        <URL>https://www.microsoft.com/en-us/microsoft-365/outlook/log-in</URL>
+        <Snippet>Sign in to Outlook with Microsoft 365 to access your email, calendar, and more. Download the app or log in online for …</Snippet>
+        <Source>microsoft.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Outlook – free personal email and calendar from Microsoft</Title>
+        <URL>https://outlook.live.com/mail/oauthRedirect.html</URL>
+        <Snippet>Access free Outlook email and calendar, plus Office Online apps like Word, Excel, and PowerPoint.</Snippet>
+        <Source>outlook.live.com</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>SOARE LEILA CONSULTING S.R.L.</OfficialName>
+    <TaxID>46810889</TaxID>
+    <RegistrationNumber>J12/5680/2022</RegistrationNumber>
+    <Address>JUD. CLUJ, MUN. CLUJ-NAPOCA, CAL. TURZII, NR.188L, PROVIZORIU, ET.4, AP.22</Address>
+    <VATStatus>active</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 09.09.2022</CompanyStatus>
+    <CAENCode>4791</CAENCode>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>Wollaston sell, buy, swap, Advertising, and Bidding - Facebook</Title>
+        <URL>https://www.facebook.com/groups/165602750184992/posts/26539587319026509/</URL>
+        <Snippet>All Dogs Good Dogs Hello, I’m Galina, a qualified canine behaviourist/trainer, offering 1:1 behaviour and training consultations. Positive …</Snippet>
+        <Source>facebook.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>5wk puppy and adolescent dog training courses ... - Facebook</Title>
+        <URL>https://www.facebook.com/groups/14686525466/posts/10173914868075467/</URL>
+        <Snippet>4 mai 2026 · 🐾💕 5wk puppy and adolescent dog training courses starting on Tuesday 19th May🐾💕 If you have a new puppy or would like to teach …</Snippet>
+        <Source>facebook.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>IPTM3210 - Person liable to charge: chargeable event certificates ...</Title>
+        <URL>https://www.gov.uk/hmrc-internal-manuals/insurance-policyholder-taxation-manual/iptm3210</URL>
+        <Snippet>IPTM7165 outlines what information needs to be provided. UK insurers can report chargeable event gains to HMRC as a flat text file or on …</Snippet>
+        <Source>gov.uk</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Reporting a Chargeable Event Certificate on your Self Assessment …</Title>
+        <URL>https://esdgaccountancy.com/post/putting-a-chargeable-event-certificate-on-your-self-assessment-tax-return/</URL>
+        <Snippet>4 nov. 2024 · When a chargeable event is triggered, the insurer will send a chargeable event certificate to the policyholder. Insurers …</Snippet>
+        <Source>esdgaccountancy.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Bonds Withdrawals and your tax position for UK bonds</Title>
+        <URL>https://static.aviva.io/content/dam/aviva-public/gb/pdfs/personal/help-and-support/contact-us/investment-bonds/investment-bonds-chargeable-event-tax.pdf</URL>
+        <Snippet>Why have I received this chargeable event certificate? The enclosed certificate has been issued as you have taken some money out of …</Snippet>
+        <Source>static.aviva.io</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>

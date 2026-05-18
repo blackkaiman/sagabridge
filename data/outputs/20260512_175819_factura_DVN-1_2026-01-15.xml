@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber>F31/210/23.03.2021</InvoiceNumber>
+  <InvoiceDate>15.01.2026</InvoiceDate>
+  <DueDate>- - -</DueDate>
+  <Currency/>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15, Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO10 RNCB 0857 1727 5547 0001</IBAN>
+    <Bank>BANCA COMERCIALA ROMANA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Starluky S.R.L.</Name>
+    <TaxID>RO 15177664</TaxID>
+    <RegistrationNumber/>
+    <Address>Str. Gheorghe Doja, 117, - 450151 Zalău, jud. Sălaj, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Mentenanță + modificări Deppo.ro</Description>
+      <Quantity/>
+      <UnitPrice>1.3813</UnitPrice>
+      <VATRate/>
+      <NetAmount>1.3813</NetAmount>
+      <VATAmount/>
+      <GrossAmount>1.3813</GrossAmount>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>1.3813</Subtotal>
+    <VATTotal/>
+    <GrandTotal>1.3813</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>BĂBŢAN DAVID-ADRIAN PERSOANĂ FIZICĂ AUTORIZATĂ</OfficialName>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber>F31/210/2021</RegistrationNumber>
+    <Address>JUD. SĂLAJ, MUN. ZALĂU, STR. PIETRIŞ, NR.9, BL.D29, SC.B, ET.3, AP.15</Address>
+    <VATStatus>inactive</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 23.03.2021</CompanyStatus>
+    <CAENCode>6311</CAENCode>
+    <RiskScore>20</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Supplier name on the invoice does NOT match the official record.</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>#newyorkfestivals | Dafi Alfadila - LinkedIn</Title>
+        <URL>https://www.linkedin.com/posts/dafi-alfadila-43964751_newyorkfestivals-activity-7177933699764662272-Zuu8</URL>
+        <Snippet>I will be spending another day looking at impressive case studies from various parts of the world, this time as a member of the New York Festivals shortlist…</Snippet>
+        <Source>linkedin.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>#newyorkfestivals | Dafi Alfadila - LinkedIn</Title>
+        <URL>https://www.linkedin.com/posts/dafi-alfadila-43964751_i-will-be-spending-another-day-looking-at-activity-7177933699764662272-SSU4</URL>
+        <Snippet>I will be spending another day looking at impressive case studies from various parts of the world, this time as a member of the New York Festivals shortlist jury. May the top work come out on top ...</Snippet>
+        <Source>linkedin.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>네오스 (주)</Title>
+        <URL>https://www.neosfil.com/</URL>
+        <Snippet>055-289-7733 E-mail. neos@neosfil.com 홍보 동영상 마그네틱 세파레이터 자세히 보기 페이퍼 필터링시스템 자세히 보기 벨트 오일 스키머 자세히 보기 이젝터 오일 스키머 자세히 보기 레벨 스위치 &amp; 싸이클론 자세히 보기 오일 집진기 (기계필터식) …</Snippet>
+        <Source>neosfil.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>NEOS Corp. - neosfil.com</Title>
+        <URL>https://www.neosfil.com/en_index.php</URL>
+        <Snippet>Details View Hybrid Filtering System Details View 055-289-7733 Do you have any questions? E-mail. neos@neosfil.com Magnetic Filter Details View PaperFilter Details View Belt Type Oil Skimmer Details …</Snippet>
+        <Source>neosfil.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Neos 제품 카다로그 (2026) 다운로드 받으세요 &gt; 자료실 | 네오스 (주)</Title>
+        <URL>https://www.neosfil.com/bbs/board.php?bo_table=05_01&amp;wr_id=34&amp;page=1</URL>
+        <Snippet>Neos 제품 카다로그 (2026) 다운로드 받으세요 작성자 관리자 24-03-30 15:44 조회 5,715회 댓글 0건 네오스 제품 소개서 20260403.pdf (33.8M) 7회 다운로드 DATE : 2026-04-26 11:15:21</Snippet>
+        <Source>neosfil.com</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>anaf</Source>
+    <OfficialName>STARLUKY SRL</OfficialName>
+    <TaxID>15177664</TaxID>
+    <RegistrationNumber>J2003000052310</RegistrationNumber>
+    <Address>JUD. SĂLAJ, MUN. ZALĂU, STR. GHEORGHE DOJA, NR.117</Address>
+    <VATStatus>active</VATStatus>
+    <CompanyStatus>INREGISTRAT din data 03.02.2003</CompanyStatus>
+    <CAENCode>4712</CAENCode>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>Your Account - Amazon.fr</Title>
+        <URL>https://www.amazon.fr/gp/css/your-account-access</URL>
+        <Snippet>Accédez à votre compte Amazon.fr pour gérer vos commandes, paramètres et abonnements facilement.</Snippet>
+        <Source>amazon.fr</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Amazon.fr : livres, DVD, jeux vidéo, musique, high-tech, informatique ...</Title>
+        <URL>https://www.amazon.fr/</URL>
+        <Snippet>Achat et vente en ligne parmi des millions de produits en stock. Livraison gratuite à partir de 25€. Vos articles à petits prix : culture, high-tech, mode, jouets, sport, maison et bien plus !</Snippet>
+        <Source>amazon.fr</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Amazon.fr : Votre Compte</Title>
+        <URL>https://www.amazon.fr/compte/s?k=votre+compte</URL>
+        <Snippet>Amazon.fr: votre compte En apprendre plus sur ces résultats. Consultez la page de chaque produit pour connaître les autres options d'achat. Le prix et les autres détails peuvent varier en fonction de la taille …</Snippet>
+        <Source>amazon.fr</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Amazon.fr : Connexion</Title>
+        <URL>https://www.amazon.fr/connexion/s?k=connexion</URL>
+        <Snippet>Amazon.fr: connexion Rendez-vous sur la section d'aide ou contactez-nous. Pour plus d'informations sur nos critères de classement, consultez la page suivante : Infos sur notre Marketplace.</Snippet>
+        <Source>amazon.fr</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Amazon.fr : Amazon Prime</Title>
+        <URL>https://www.amazon.fr/amazonprime</URL>
+        <Snippet>Amazon Luna Jouez aux jeux que vous aimez et découvrez de nouveaux jeux préférés, notamment des jeux d'action-aventure, des jeux de société et bien plus encore.</Snippet>
+        <Source>amazon.fr</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>

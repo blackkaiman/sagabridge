@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice>
+  <InvoiceNumber>F31/210/23.03.2021</InvoiceNumber>
+  <InvoiceDate>15.01.2026</InvoiceDate>
+  <DueDate>- - -</DueDate>
+  <Currency/>
+  <Supplier>
+    <Name>BABTAN DAVID-ADRIAN PFA</Name>
+    <TaxID>43964751</TaxID>
+    <RegistrationNumber/>
+    <Address>STR PIETRIS NR 9 BL D29 SC B ET 3 AP 15, Zalău, jud. Sălaj, România</Address>
+    <IBAN>RO10 RNCB 0857 1727 5547 0001</IBAN>
+    <Bank>BANCA COMERCIALA ROMANA</Bank>
+  </Supplier>
+  <Customer>
+    <Name>Starluky S.R.L.</Name>
+    <TaxID>RO 15177664</TaxID>
+    <RegistrationNumber/>
+    <Address>Str. Gheorghe Doja, 117, - 450151 Zalău, jud. Sălaj, România</Address>
+  </Customer>
+  <Items>
+    <Item>
+      <Description>Mentenanță + modificări Deppo.ro</Description>
+      <Quantity/>
+      <UnitPrice>1.3813</UnitPrice>
+      <VATRate/>
+      <NetAmount>1.3813</NetAmount>
+      <VATAmount/>
+      <GrossAmount>1.3813</GrossAmount>
+    </Item>
+  </Items>
+  <Totals>
+    <Subtotal>1.3813</Subtotal>
+    <VATTotal/>
+    <GrandTotal>1.3813</GrandTotal>
+  </Totals>
+  <SupplierVerification>
+    <Verified>false</Verified>
+    <Status>error</Status>
+    <Source>anaf</Source>
+    <OfficialName/>
+    <TaxID/>
+    <RegistrationNumber/>
+    <Address/>
+    <VATStatus/>
+    <CompanyStatus/>
+    <CAENCode/>
+    <RiskScore>30</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings>
+      <Warning>Company could not be verified (status: error).</Warning>
+    </Warnings>
+    <OnlineMentions>
+      <Mention>
+        <Title>Usability of Quick Response (QR) Code as a Method to Access a Survey ...</Title>
+        <URL>https://www2.census.gov/library/working-papers/2024/adrm/cbsm/rsm2024-05.pdf</URL>
+        <Snippet>Marlar (2018) conducted a study that explored the effect on response rates from different options to access an online survey from a mailed paper invitation: 1) a URL, 2) a QR code, and 3) a URL or QR …</Snippet>
+        <Source>www2.census.gov</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>SCREEN RESOLUTION AND QR CODES IN PUSH-TO-WEB SURVEYS: A QUICK RESPONSE ...</Title>
+        <URL>https://academic.oup.com/jssam/advance-article/doi/10.1093/jssam/smaf045/8664704</URL>
+        <Snippet>29 apr. 2026 · Our results demonstrate that respondents are more likely to break off a survey having accessed it via a QR code, even if they were free to choose between accessing the survey with said …</Snippet>
+        <Source>academic.oup.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Who chooses a QR code over a URL to access a web screener in a …</Title>
+        <URL>https://surveyinsights.org/?p=20208&amp;print=pdf</URL>
+        <Snippet>1 mar. 2025 · Typing in a URL and login credentials, which can be error prone, can be considered burdensome and a barrier for participation for some respondents. One possible way to ease the …</Snippet>
+        <Source>surveyinsights.org</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>The effect of quick response (QR) codes on panel recruitment and survey ...</Title>
+        <URL>https://www.gu.se/sites/default/files/2023-09/Lundmark+et+al+(2023)+GOR.pdf</URL>
+        <Snippet>Smith (2017) and Marlar (2018) found that using QR codes to invite respondents lowered response rates and increased non-response bias, especially when offering QR codes as the only means to reach the …</Snippet>
+        <Source>gu.se</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>QR Codes as a Method for Older Adults to Access a Mobile Survey</Title>
+        <URL>https://link.springer.com/chapter/10.1007/978-3-031-34866-2_10</URL>
+        <Snippet>9 iul. 2023 · Regardless of the usability issues encountered, most of the users stated that they would prefer to scan a QR code over typing a URL because it helped them avoid the typing errors that they …</Snippet>
+        <Source>link.springer.com</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </SupplierVerification>
+  <CustomerVerification>
+    <Verified>true</Verified>
+    <Status>verified</Status>
+    <Source>vies</Source>
+    <OfficialName>STARLUKY SRL</OfficialName>
+    <TaxID>RO15177664</TaxID>
+    <RegistrationNumber/>
+    <Address>MUN. ZALĂU 450151 STR. GHEORGHE DOJA Nr. 117</Address>
+    <VATStatus>active</VATStatus>
+    <CompanyStatus>ACTIVE</CompanyStatus>
+    <CAENCode/>
+    <RiskScore>0</RiskScore>
+    <RiskLevel>low</RiskLevel>
+    <Warnings/>
+    <OnlineMentions>
+      <Mention>
+        <Title>Sky go desktop app not working on windows | Sky Community</Title>
+        <URL>https://helpforum.sky.com/t5/Sky-Go/Sky-go-desktop-app-not-working-on-windows/td-p/4409395</URL>
+        <Snippet>11 sept. 2023 · Have downloaded the SkyGo desktop app for windows intop my laptop and when trying to run it says 'checking for updates' which seems to be fine and then it just gets stuck wirth the big play …</Snippet>
+        <Source>helpforum.sky.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>No Spotify Video | Sky Community</Title>
+        <URL>https://helpforum.sky.com/t5/Sky-Q/No-Spotify-Video/m-p/5231522</URL>
+        <Snippet>14 mar. 2026 · Spotify is audio only. How do I get video to play</Snippet>
+        <Source>helpforum.sky.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Sky Q Board | Sky Community - Sky Help Forum</Title>
+        <URL>https://helpforum.sky.com/t5/Sky-Q/bd-p/skyq</URL>
+        <Snippet>Check out the latest on Sky Q from Setup, Ultra HD and everything in between. Our Sky Q Board is the home of all things Sky Q.</Snippet>
+        <Source>helpforum.sky.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>What is Sky Sports+?</Title>
+        <URL>https://helpforum.sky.com/t5/Sky-TV/What-is-Sky-Sports/ba-p/4706785</URL>
+        <Snippet>2 aug. 2024 · What is Sky Sports+? Launching this August, Sky Sports+ is transforming the amount of choice sports fans have, all at no extra cost Integrated into Sky TV, streaming service NOW, and a …</Snippet>
+        <Source>helpforum.sky.com</Source>
+        <PublishedDate/>
+      </Mention>
+      <Mention>
+        <Title>Sky stream puck | Sky Community</Title>
+        <URL>https://helpforum.sky.com/t5/Sky-Stream/Sky-stream-puck/m-p/5266782</URL>
+        <Snippet>2 mai 2026 · Is anyone else having this issue? When streaming TV live, no matter the channel, the sound will drop out and the screen goes gray. I have tried resetting everything and it fixes it for around 20 …</Snippet>
+        <Source>helpforum.sky.com</Source>
+        <PublishedDate/>
+      </Mention>
+    </OnlineMentions>
+  </CustomerVerification>
+</Invoice>
