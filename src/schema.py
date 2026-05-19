@@ -77,22 +77,49 @@ def _to_opt_float(v: Any) -> Optional[float]:
         s = re.sub(r"[^\d.,\-]", "", s)
         if not s:
             return None
-        # Format european: "1.234,56" -> "1234.56"
+        # Detectie format numeric romanesc / european / american.
+        # Regula de baza:
+        #   "," urmat de 1-2 cifre la sfarsit = separator zecimal RO/EU
+        #   "." urmat de 3 cifre exact = separator de mii (RO/EU pentru sume mari)
         if "," in s and "." in s:
-            # ambele prezente: presupunem . = mii, , = zecimale
+            # Ambele prezente: ultimul caracter speciale dicteaza tipul.
             if s.rfind(",") > s.rfind("."):
+                # Format european: "1.234,56" -> "1234.56"
+                # (. e separator mii, , e zecimal)
                 s = s.replace(".", "").replace(",", ".")
             else:
-                # dot e zecimal, virgula e mii
+                # Format american: "1,234.56" -> "1234.56"
+                # (, e separator mii, . e zecimal)
                 s = s.replace(",", "")
         elif "," in s:
-            # doar virgula: daca apare un singur "," urmat de 1-2 cifre
-            # la sfarsit, e zecimal.
+            # Doar virgula prezenta:
             parts = s.split(",")
             if len(parts) == 2 and 1 <= len(parts[1]) <= 2:
+                # "29,50" / "29,5" → decimal romanesc
                 s = s.replace(",", ".")
             else:
+                # "1,234" / "1,234,567" → separator de mii american
                 s = s.replace(",", "")
+        elif "." in s:
+            # Doar punct prezent — cel mai ambiguu caz, dar pentru context
+            # de facturi romanesti aplicam heuristica:
+            #   "X.YYY" cu exact 3 cifre dupa punct → separator de mii
+            #   "X.Y" sau "X.YY" → decimal
+            #   "X.YYY.ZZZ" cu toate grupurile de 3 cifre → mii (1.500.000)
+            parts = s.split(".")
+            if len(parts) == 2:
+                decimals = parts[1]
+                if len(decimals) == 3:
+                    # "29.500" — AMBIGUU în general dar pentru facturi
+                    # romanesti e aproape sigur separator de mii.
+                    s = s.replace(".", "")
+                # altfel (1-2 cifre sau 4+) → lasam ca e, va fi decimal
+            elif len(parts) >= 3:
+                # Mai multe puncte: "1.234.567"
+                # Daca toate grupurile dupa primul au exact 3 cifre,
+                # sunt separatori de mii.
+                if all(len(p) == 3 for p in parts[1:]):
+                    s = s.replace(".", "")
         try:
             return float(s)
         except ValueError:
