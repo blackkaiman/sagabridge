@@ -40,9 +40,30 @@ from .utils import parse_json_safe
 # se schimbe deloc.
 JSON_SCHEMA_DESCRIPTION = """\
 Return STRICTLY a JSON object with EXACTLY this structure. Use null where
-the field is missing or illegible. Numeric fields must be numbers (not
-strings). Do NOT invent data:
+the field is missing or illegible. Do NOT invent data.
 
+CRITICAL — NUMERIC FIELDS MUST BE RETURNED AS STRINGS:
+All numeric fields (quantity, unit_price, vat_rate, net_amount, vat_amount,
+gross_amount, subtotal, vat_total, grand_total) must be returned as STRINGS
+that preserve the EXACT formatting from the invoice text (including dots,
+commas, and spaces). DO NOT pre-convert numbers to JSON numbers — a downstream
+parser handles the Romanian-vs-English format detection.
+
+ROMANIAN NUMBER FORMAT (essential context):
+  - Decimal separator: COMMA  ","   ("29,50" means 29.50)
+  - Thousand separator: DOT  "."   or SPACE  " "
+  - Examples of literal invoice text:
+      "29,50"       =  29.50          (decimal, twenty-nine point fifty)
+      "29.500"      =  29,500         (thousand, twenty-nine thousand five hundred)
+      "29.500,75"   =  29,500.75
+      "1.500.000"   =  1,500,000      (one million five hundred thousand)
+      "1 500 000"   =  1,500,000      (same value, space separator)
+
+When you see a number like "29.500" in a Romanian invoice context, it is
+ALMOST ALWAYS twenty-nine thousand five hundred, NOT twenty-nine point five.
+Copy the number AS A STRING exactly as written; do not normalize it.
+
+Schema:
 {
   "invoice_number": "string|null",
   "invoice_date": "string|null",
@@ -65,18 +86,18 @@ strings). Do NOT invent data:
   "items": [
     {
       "description": "string|null",
-      "quantity": "number|null",
-      "unit_price": "number|null",
-      "vat_rate": "number|null",
-      "net_amount": "number|null",
-      "vat_amount": "number|null",
-      "gross_amount": "number|null"
+      "quantity": "string|null      (exact text from invoice, e.g. \\"2\\" or \\"1,5\\")",
+      "unit_price": "string|null    (exact text from invoice, e.g. \\"29.500\\")",
+      "vat_rate": "string|null      (exact text from invoice, e.g. \\"19\\" or \\"19%\\")",
+      "net_amount": "string|null    (exact text from invoice)",
+      "vat_amount": "string|null    (exact text from invoice)",
+      "gross_amount": "string|null  (exact text from invoice)"
     }
   ],
   "totals": {
-    "subtotal": "number|null",
-    "vat_total": "number|null",
-    "grand_total": "number|null"
+    "subtotal": "string|null      (exact text from invoice)",
+    "vat_total": "string|null     (exact text from invoice)",
+    "grand_total": "string|null   (exact text from invoice)"
   }
 }
 """
@@ -85,8 +106,11 @@ SYSTEM_PROMPT = (
     "You are an expert in extracting structured data from Romanian and "
     "international invoices. Extract only information ACTUALLY present in "
     "the invoice — do NOT infer or invent. Use null for missing fields. "
-    "Return numbers as JSON numbers (no currency symbols, no thousand "
-    "separators in the JSON values themselves)."
+    "IMPORTANT: return ALL numeric fields as STRINGS preserving the EXACT "
+    "text from the invoice (including dots, commas, spaces). Do not "
+    "convert numbers yourself — a downstream parser will interpret the "
+    "Romanian number format. For example, if the invoice shows \"29.500\", "
+    "return the STRING \"29.500\" (not the number 29.5)."
 )
 
 
