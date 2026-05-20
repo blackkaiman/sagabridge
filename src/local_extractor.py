@@ -38,6 +38,73 @@ from .utils import parse_json_safe
 # Schema impusa modelului local. Aceeasi structura ca la varianta OpenAI,
 # pentru ca restul pipeline-ului (validare Pydantic, generare XML) sa nu
 # se schimbe deloc.
+# =============================================================================
+# JSON Schema impusa de Ollama la tokenizer level (mecanism structured output)
+# =============================================================================
+# Toate campurile numerice sunt declarate ca "string" — modelul NU POATE FIZIC
+# sa returneze "29.5" cand factura zice "29.500". E mai puternic decat orice
+# instructiune in prompt.
+
+def _opt_str() -> dict:
+    return {"type": ["string", "null"]}
+
+_INVOICE_JSON_SCHEMA: dict = {
+    "type": "object",
+    "properties": {
+        "invoice_number": _opt_str(),
+        "invoice_date": _opt_str(),
+        "due_date": _opt_str(),
+        "currency": _opt_str(),
+        "supplier": {
+            "type": "object",
+            "properties": {
+                "name": _opt_str(),
+                "tax_id": _opt_str(),
+                "registration_number": _opt_str(),
+                "address": _opt_str(),
+                "iban": _opt_str(),
+                "bank": _opt_str(),
+            },
+        },
+        "customer": {
+            "type": "object",
+            "properties": {
+                "name": _opt_str(),
+                "tax_id": _opt_str(),
+                "registration_number": _opt_str(),
+                "address": _opt_str(),
+            },
+        },
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "description": _opt_str(),
+                    # ATENTIE: numerice ca STRING — schema forteaza asta.
+                    "quantity": _opt_str(),
+                    "unit_price": _opt_str(),
+                    "vat_rate": _opt_str(),
+                    "net_amount": _opt_str(),
+                    "vat_amount": _opt_str(),
+                    "gross_amount": _opt_str(),
+                },
+            },
+        },
+        "totals": {
+            "type": "object",
+            "properties": {
+                # Si totalurile la fel — string in JSON, parsate ulterior.
+                "subtotal": _opt_str(),
+                "vat_total": _opt_str(),
+                "grand_total": _opt_str(),
+            },
+        },
+    },
+    "required": ["supplier", "customer", "items", "totals"],
+}
+
+
 JSON_SCHEMA_DESCRIPTION = """\
 Return STRICTLY a JSON object with EXACTLY this structure. Use null where
 the field is missing or illegible. Do NOT invent data.
@@ -151,7 +218,18 @@ def _ollama_client() -> ollama.Client:
 
 def _run_ollama(prompt: str) -> str:
     """
-    Send a prompt to the local Ollama server with strict JSON formatting.
+    Send a prompt to the local Ollama server with strict JSON schema.
+
+    Uses Ollama's structured output feature: passing a JSON Schema as `format`
+    forces the model to produce output matching that schema at the tokenizer
+    level. This is MUCH more reliable than asking via prompt — small models
+    (Llama 3.2 3B) often ignore textual instructions but cannot violate the
+    grammar enforced by the JSON Schema.
+
+    Critical: ALL numeric fields are declared as "string" type. The LLM is
+    physically prevented from outputting "29.5" when the invoice shows
+    "29.500" — it must keep the original text. The downstream Pydantic
+    OptFloat coercer then applies Romanian-aware parsing.
 
     Returns the raw text response. Raises RuntimeError if the local server
     is not reachable or the configured model is not installed.
@@ -160,8 +238,8 @@ def _run_ollama(prompt: str) -> str:
     try:
         response = client.chat(
             model=OLLAMA_MODEL,
-            format="json",  # constrain to valid JSON
-            options={"temperature": 0},  # deterministic output
+            format=_INVOICE_JSON_SCHEMA,  # tokenizer-level schema enforcement
+            options={"temperature": 0},
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
