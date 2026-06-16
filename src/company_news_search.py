@@ -155,31 +155,52 @@ def _is_relevant_to_company(
             return True
 
     # Variant 2: site-ul propriu (slug numefirmá in domain) — accept fara
-    # cerere de mentiune in text.
+    # cerere de mentiune in text. Normalizam slug-ul firmei FARA forma
+    # juridica (srl/sa/pfa) ca sa potrivim "empower-srl.ro" pentru
+    # "EM POWER S.R.L."
     if company_name and domain:
-        name_slug = re.sub(r"[^a-z0-9]", "", company_name.lower())
-        d = domain.lower()
+        # Strip forma juridica inainte de slug
+        clean = re.sub(
+            r"\s*(S\.?\s*R\.?\s*L\.?|S\.?\s*A\.?|PFA|II|IA|S\.?\s*C\.?|SNC|SCS)\s*\.?\s*$",
+            "", company_name, flags=re.IGNORECASE,
+        )
+        name_slug = re.sub(r"[^a-z0-9]", "", clean.lower())
+        d = re.sub(r"[^a-z0-9.]", "", domain.lower())  # normalizam si domain-ul
         parts = d.split(".")
         if len(parts) >= 2 and name_slug and len(name_slug) >= 4:
-            # ia segmentul registrabil al domeniului (foo.example.com -> example)
             registrable = parts[-2]
             if name_slug in registrable or registrable in name_slug:
                 return True
 
     # Variant 3: numele firmei apare in text.
     if company_name:
-        # Folosim cuvintele "informative" din nume (≥3 caractere, fara
-        # cuvinte gol "srl"/"sa"/"pfa"/"sc"). Cerem ≥2 sa apara.
+        # Folosim cuvintele "informative" din nume (≥2 caractere, fara
+        # cuvinte goale "srl"/"sa"/"pfa"/"sc"). Acceptam 2 caractere ca sa
+        # prindem "EM" din "EM POWER" sau "IT" din nume cu acronime scurte.
         STOP = {"srl", "sa", "sc", "pfa", "ii", "ia", "snc", "scs", "the", "ltd",
-                "gmbh", "ag", "spa", "bv", "sas", "sarl", "kft"}
-        words = [w for w in re.findall(r"[a-zăâîșțA-ZĂÂÎȘȚ]{3,}", company_name)
+                "gmbh", "ag", "spa", "bv", "sas", "sarl", "kft",
+                "and", "for", "with", "from"}
+        words = [w for w in re.findall(r"[a-zăâîșțA-ZĂÂÎȘȚ]{2,}", company_name)
                  if w.lower() not in STOP]
         if not words:
-            return False  # numele e doar form-juridica, nu putem valida
+            return False  # numele e doar forma juridica, nu putem valida
         text_norm = re.sub(r"\s+", " ", text)
-        hits = sum(1 for w in words if w.lower() in text_norm)
-        # ≥ 2 cuvinte distincte, sau ≥ 50% din cuvintele informative.
-        return hits >= max(2, len(words) // 2)
+        # WORD-BOUNDARY match — "full" NU se potriveste cu "fulltime", iar
+        # "out" NU cu "without". Threshold scalat pe lungime:
+        #   1 cuvant  -> trebuie sa apara
+        #   2 cuvinte -> ambele
+        #   3+        -> >=75%
+        hits = sum(
+            1 for w in words
+            if re.search(rf"\b{re.escape(w.lower())}\b", text_norm)
+        )
+        if len(words) == 1:
+            threshold = 1
+        elif len(words) == 2:
+            threshold = 2
+        else:
+            threshold = max(2, (len(words) * 3) // 4)
+        return hits >= threshold
 
     return False
 
@@ -276,11 +297,28 @@ def _search_via_duckduckgo(
     parts: List[str] = []
     name = (company_name or "").strip()
     tid = (tax_id or "").strip()
-    if name:
-        parts.append(f'"{name}"')
-    if tid:
-        parts.append(f'"{tid}"')
-    # Bilingual press keywords (RO + EN). The OR-clause widens recall.
+
+    # Curatam sufixul juridic ca DDG sa gaseasca rezultate concrete:
+    # "FULL OUT MEDIA S.R.L." -> "FULL OUT MEDIA"
+    # "BABTAN DAVID-ADRIAN PFA" -> "BABTAN DAVID-ADRIAN"
+    clean_name = re.sub(
+        r"\s*(S\.?\s*R\.?\s*L\.?|S\.?\s*A\.?|PFA|II|IA|S\.?\s*C\.?|SNC|SCS)\s*\.?\s*$",
+        "", name, flags=re.IGNORECASE,
+    ).strip()
+
+    # Si CUI-ul fara prefixul RO (DDG match mai flexibil pe numeric).
+    tid_clean = re.sub(r"^RO\s*", "", tid, flags=re.IGNORECASE).strip()
+
+    if clean_name:
+        # Quotat pentru a forta matchul pe fraza intreaga
+        parts.append(f'"{clean_name}"')
+    if tid_clean:
+        # Neguillemetat — DDG matchuieste flexibil
+        parts.append(tid_clean)
+
+    # Query mai natural decat OR-clause + presa-keywords. Returneaza orice
+    # gen de rezultate (website, registru, presa) — filtrarea/clasificarea
+    # se face downstream.
     query = " ".join(parts).strip()
     if not query:
         return CompanyNewsSearchResult(
