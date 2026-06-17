@@ -116,6 +116,69 @@ ADULT_KEYWORDS = (
 )
 
 
+def _probe_company_domain(clean_name: str) -> List[OnlineMention]:
+    """
+    Probe direct HTTP HEAD pe domenii probabile ale firmei.
+
+    DDG si alte search engines pot rata complet site-ul oficial al unei firme
+    mici (mai ales pentru SEO-uri slabe sau crawl recent). Pentru a nu pierde
+    "website-ul propriu", incercam direct cateva patterns clasice:
+
+        {slug}.ro, www.{slug}.ro, {slug}.com
+
+    Daca raspunde HTTP < 400, e un domeniu activ — il declaram ca website
+    al firmei. Total ~1-2 secunde pentru 3 incercari paralele (HEAD requests).
+    """
+    import requests
+    from concurrent.futures import ThreadPoolExecutor
+
+    if not clean_name:
+        return []
+
+    slug = re.sub(r"[^a-z0-9]", "", clean_name.lower())
+    if len(slug) < 3:
+        return []
+
+    candidates = (
+        f"https://www.{slug}.ro",
+        f"https://{slug}.ro",
+        f"https://www.{slug}.com",
+    )
+
+    def _check(url: str) -> Optional[OnlineMention]:
+        try:
+            r = requests.head(
+                url, timeout=2.5, allow_redirects=True,
+                headers={"User-Agent": "Mozilla/5.0 SAGABridge/1.0"},
+            )
+            if r.status_code < 400:
+                final = r.url
+                domain = _extract_domain(final)
+                return OnlineMention(
+                    title=f"{clean_name} — official website",
+                    url=final,
+                    snippet=f"Official domain probed and reachable ({domain}).",
+                    source=domain,
+                    published_date=None,
+                    mention_type="website",
+                )
+        except Exception:  # noqa: BLE001
+            return None
+        return None
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        results = list(pool.map(_check, candidates))
+
+    seen: set = set()
+    found: List[OnlineMention] = []
+    for r in results:
+        if r and r.url and r.url not in seen:
+            seen.add(r.url)
+            found.append(r)
+            break  # primul match e suficient
+    return found
+
+
 def _is_junk_domain(domain: Optional[str]) -> bool:
     """True for generic SaaS landing pages, login screens, search engines."""
     if not domain:
@@ -397,6 +460,16 @@ def _search_via_duckduckgo(
             published_date=None,  # DDG doesn't expose publish dates
             mention_type=mtype,
         ))
+
+    # Probe direct pentru site-ul oficial daca DDG nu a returnat unul.
+    # Folosim numele curat (fara SRL/SA/PFA) ca slug pentru domeniu.
+    has_website = any(m.mention_type == "website" for m in classified)
+    if not has_website and clean_name:
+        probed = _probe_company_domain(clean_name)
+        for m in probed:
+            if m.url and m.url not in seen_urls:
+                seen_urls.add(m.url)
+                classified.append(m)
 
     # Prioritize: website first, then registry, social, news.
     type_order = {"website": 0, "registry": 1, "social": 2, "news": 3, "other": 4}
