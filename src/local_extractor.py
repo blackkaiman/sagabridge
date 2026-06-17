@@ -130,6 +130,32 @@ When you see a number like "29.500" in a Romanian invoice context, it is
 ALMOST ALWAYS twenty-nine thousand five hundred, NOT twenty-nine point five.
 Copy the number AS A STRING exactly as written; do not normalize it.
 
+ROMANIAN INVOICE FIELD LABELS (CRITICAL — map these labels to JSON fields):
+
+  Label on invoice                          -> JSON field
+  ─────────────────────────────────────────────────────────
+  "Vânzător:" / "Furnizor:" / "Emitent:"   -> supplier
+  "Cumpărător:" / "Client:" / "Beneficiar:" -> customer
+  "CIF:" / "CUI:" / "Cod Fiscal:"           -> tax_id (e.g., "43964751" or "RO37082832")
+  "Nr. ord. reg. com." / "RegCom" / "J.../F.../C..."  -> registration_number
+  "Adresă:" / "Adresa:" / "Sediu:"          -> address
+  "IBAN:" / "Cont:" / "Cont bancar:"        -> iban
+  "Banca:" / "Bancă:"                       -> bank
+  "Seria și numărul" / "Nr. factură" / "Factura"      -> invoice_number
+  "Data facturii" / "Data emiterii"         -> invoice_date
+  "Termen de plată" / "Data scadenței"      -> due_date
+  "U.M." / "buc" / "kg" / "ore"             -> (part of items)
+  "Cantitate" / "Cant."                     -> items[].quantity
+  "Preț unitar" / "Pret unitar"             -> items[].unit_price
+  "Valoare" / "Valoare Totală"              -> items[].net_amount or gross_amount
+  "TVA"                                     -> items[].vat_amount or totals.vat_total
+  "Total"                                   -> totals.grand_total
+
+CRITICAL: The CIF / CUI is ALWAYS a string of digits (sometimes prefixed with
+"RO"). When you see "CIF: 43964751" or "CUI: RO37082832", extract that number
+as the tax_id. Do NOT skip this field — it is the most important identifier
+for the company.
+
 Schema:
 {
   "invoice_number": "string|null",
@@ -172,12 +198,24 @@ Schema:
 SYSTEM_PROMPT = (
     "You are an expert in extracting structured data from Romanian and "
     "international invoices. Extract only information ACTUALLY present in "
-    "the invoice — do NOT infer or invent. Use null for missing fields. "
-    "IMPORTANT: return ALL numeric fields as STRINGS preserving the EXACT "
-    "text from the invoice (including dots, commas, spaces). Do not "
-    "convert numbers yourself — a downstream parser will interpret the "
-    "Romanian number format. For example, if the invoice shows \"29.500\", "
-    "return the STRING \"29.500\" (not the number 29.5)."
+    "the invoice — do NOT infer or invent. Use null for missing fields.\n\n"
+    "ROMANIAN INVOICE TERMS (must recognize):\n"
+    "  - 'CIF', 'CUI', 'Cod Fiscal' -> tax_id (e.g., \"43964751\", \"RO37082832\")\n"
+    "  - 'Vânzător' / 'Furnizor' -> supplier\n"
+    "  - 'Cumpărător' / 'Client' / 'Beneficiar' -> customer\n"
+    "  - 'Nr. ord. reg. com.' / 'RegCom' -> registration_number\n"
+    "  - 'IBAN' / 'Cont' -> iban\n"
+    "  - 'Banca' / 'Bancă' -> bank\n"
+    "  - 'Adresă' / 'Adresa' / 'Sediu' -> address\n\n"
+    "ALWAYS extract tax_id when CIF / CUI / Cod Fiscal is present on the "
+    "invoice. It is a numeric identifier (with optional RO prefix). Look "
+    "carefully for these labels for BOTH supplier and customer sections.\n\n"
+    "IMPORTANT: return ALL numeric fields (quantity, prices, amounts, "
+    "totals) as STRINGS preserving the EXACT text from the invoice "
+    "(including dots, commas, spaces). Do not convert numbers yourself — a "
+    "downstream parser will interpret the Romanian number format. For "
+    "example, if the invoice shows \"29.500\", return the STRING \"29.500\" "
+    "(not the number 29.5)."
 )
 
 
