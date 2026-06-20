@@ -12,9 +12,11 @@ be interactive.
 from __future__ import annotations
 
 import base64
+import io
 import json
 import time
 import traceback
+import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -1315,13 +1317,161 @@ def main() -> None:
     # ----- §1 Upload -----
     render_section_head(
         "§1",
-        "Upload an invoice",
-        "Drop a PDF — digital or scanned. Both parties on the invoice are "
-        "verified against public registries; press and registry mentions "
-        "are surfaced alongside the heuristic risk score. Typical run: "
-        "20–30 seconds.",
+        "Upload invoice(s)",
+        "Drop a PDF or select multiple files for batch processing. "
+        "Single mode includes full company verification and risk analysis. "
+        "Bulk mode skips verification and generates one XML per file, "
+        "packaged as a ZIP archive — faster for large batches.",
     )
 
+    mode = st.radio(
+        "Mode",
+        ["Single invoice", "Bulk import"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
+
+    # ── Bulk mode ───────────────────────────────────────────────────────────
+    if mode == "Bulk import":
+        uploaded_files = st.file_uploader(
+            "Select invoice PDFs",
+            type=["pdf"],
+            accept_multiple_files=True,
+            label_visibility="collapsed",
+        )
+
+        if not uploaded_files:
+            st.markdown(
+                '<div class="idle-block">Select multiple PDFs and press '
+                '<em>Analyze invoices</em> to begin.</div>',
+                unsafe_allow_html=True,
+            )
+            render_colophon()
+            return
+
+        st.caption(
+            f"{len(uploaded_files)} file(s) selected — "
+            f"{sum(f.size for f in uploaded_files) / 1024:.0f} KB total"
+        )
+        st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
+
+        # Invalidate cached results when the file set changes.
+        _bulk_key = tuple(sorted(f.name + str(f.size) for f in uploaded_files))
+        if st.session_state.get("_bulk_key") != _bulk_key:
+            st.session_state["_bulk_key"] = _bulk_key
+            st.session_state["_bulk_results"] = None
+
+        analyze_bulk = st.button(
+            f"Analyze {len(uploaded_files)} invoice(s)",
+            type="primary",
+        )
+
+        if analyze_bulk:
+            render_section_head(
+                "§2",
+                "Batch processing",
+                f"Running {len(uploaded_files)} file(s) through the extraction pipeline.",
+            )
+            _prog = st.progress(0, text="Starting…")
+            _status = st.empty()
+            _bulk: list[dict] = []
+
+            for _i, _uf in enumerate(uploaded_files):
+                _prog.progress(
+                    _i / len(uploaded_files),
+                    text=f"[{_i + 1}/{len(uploaded_files)}] {_uf.name}",
+                )
+                _status.info(f"⏳ Extracting **{_uf.name}**…")
+                _t0 = time.time()
+                try:
+                    _pdf_path = save_uploaded_file(_uf, UPLOADS_DIR)
+                    _res = run_pipeline(_pdf_path)
+                    _inv = validate_invoice_data(_res["data"])
+                    _xml_str = generate_invoice_xml(_inv)
+                    validate_xml(_xml_str)
+                    _xml_fn = get_timestamped_filename(Path(_uf.name).stem + ".xml")
+                    (OUTPUTS_DIR / _xml_fn).write_text(_xml_str, encoding="utf-8")
+                    _bulk.append({
+                        "name": _uf.name, "status": "ok",
+                        "supplier": _inv.supplier.name or "—",
+                        "customer": _inv.customer.name or "—",
+                        "total": (
+                            f"{_inv.totals.grand_total:,.2f} "
+                            f"{_inv.currency or ''}".strip()
+                            if _inv.totals.grand_total is not None else "—"
+                        ),
+                        "time": time.time() - _t0,
+                        "xml_str": _xml_str, "xml_fn": _xml_fn, "error": None,
+                    })
+                except Exception as _exc:  # noqa: BLE001
+                    _bulk.append({
+                        "name": _uf.name, "status": "error",
+                        "supplier": "—", "customer": "—", "total": "—",
+                        "time": time.time() - _t0,
+                        "xml_str": None, "xml_fn": None, "error": str(_exc),
+                    })
+
+            _prog.progress(1.0, text="All done!")
+            _status.empty()
+            st.session_state["_bulk_results"] = _bulk
+
+        if st.session_state.get("_bulk_results"):
+            _res_list: list[dict] = st.session_state["_bulk_results"]
+            _ok = [r for r in _res_list if r["status"] == "ok"]
+            _err = [r for r in _res_list if r["status"] == "error"]
+            render_runmeta([
+                ("Files", str(len(_res_list)), False),
+                ("Successful", str(len(_ok)), True),
+                ("Errors", str(len(_err)), bool(_err)),
+                ("Total time", f"{sum(r['time'] for r in _res_list):.1f} s", False),
+            ])
+
+            # Per-file result rows
+            for _r in _res_list:
+                _icon = "✅" if _r["status"] == "ok" else "❌"
+                _c1, _c2, _c3, _c4, _c5 = st.columns([3, 2, 2, 1, 1])
+                with _c1:
+                    st.markdown(f"{_icon} **{_r['name']}**")
+                    if _r["error"]:
+                        st.caption(f"↳ {_r['error'][:120]}")
+                with _c2:
+                    st.caption(_r["supplier"])
+                with _c3:
+                    st.caption(_r["customer"])
+                with _c4:
+                    st.caption(_r["total"])
+                with _c5:
+                    if _r["xml_str"]:
+                        st.download_button(
+                            "XML",
+                            data=_r["xml_str"].encode("utf-8"),
+                            file_name=_r["xml_fn"],
+                            mime="application/xml",
+                            key=f"dl_bulk_{_r['xml_fn']}",
+                        )
+
+            # ZIP archive with all successful XMLs
+            if _ok:
+                _zip_buf = io.BytesIO()
+                with zipfile.ZipFile(_zip_buf, "w", zipfile.ZIP_DEFLATED) as _zf:
+                    for _r in _ok:
+                        _zf.writestr(_r["xml_fn"], _r["xml_str"])
+                _zip_buf.seek(0)
+                st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
+                st.download_button(
+                    f"⬇ Download all {len(_ok)} XML file(s) as ZIP",
+                    data=_zip_buf.getvalue(),
+                    file_name="sagabridge_invoices.zip",
+                    mime="application/zip",
+                    type="primary",
+                    key="dl_bulk_zip",
+                )
+
+        render_colophon()
+        return
+
+    # ── Single invoice mode ──────────────────────────────────────────────────
     uploaded_file = st.file_uploader(
         "Select an invoice PDF",
         type=["pdf"],

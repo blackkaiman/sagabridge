@@ -277,7 +277,14 @@ def _run_ollama(prompt: str) -> str:
         response = client.chat(
             model=OLLAMA_MODEL,
             format=_INVOICE_JSON_SCHEMA,  # tokenizer-level schema enforcement
-            options={"temperature": 0},
+            options={
+                "temperature": 0,
+                # Smaller context window = faster KV-cache allocation and inference.
+                # 4 096 tokens is more than enough for a full invoice prompt + JSON.
+                "num_ctx": 4096,
+                # Cap output tokens — invoice JSON is typically 400-700 tokens.
+                "num_predict": 1024,
+            },
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
@@ -314,6 +321,12 @@ def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
     """
     if not raw_text or not raw_text.strip():
         raise ValueError("Invoice text is empty; cannot process.")
+
+    # Truncate long inputs — invoices rarely need more than 6 000 chars and
+    # shorter prompts reduce Ollama tokenization + inference time substantially.
+    _MAX_INPUT = 6_000
+    if len(raw_text) > _MAX_INPUT:
+        raw_text = raw_text[:_MAX_INPUT]
 
     user_prompt = (
         "Below is the text extracted from an invoice. Extract its fields "

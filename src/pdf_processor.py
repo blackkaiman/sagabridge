@@ -88,7 +88,7 @@ def convert_pdf_to_images(
     pdf_path: Union[str, Path],
     output_dir: Union[str, Path],
     max_pages: int = MAX_PAGES,
-    dpi: int = 200,
+    dpi: int = 150,
 ) -> List[Path]:
     """
     Converteste primele `max_pages` pagini ale unui PDF in imagini PNG.
