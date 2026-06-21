@@ -1282,12 +1282,13 @@ def render_colophon() -> None:
 # =============================================================================
 # Pipeline
 # =============================================================================
-def run_pipeline(pdf_path: Path) -> dict:
+def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
+    """Run the full extraction pipeline. `model` overrides OLLAMA_MODEL."""
     raw_text = extract_text_from_pdf(pdf_path)
 
     if is_text_sufficient(raw_text):
         method = "text"
-        data = extract_invoice_from_text(raw_text)
+        data = extract_invoice_from_text(raw_text, model=model)
         image_paths: list = []
     else:
         method = "vision"
@@ -1296,7 +1297,7 @@ def run_pipeline(pdf_path: Path) -> dict:
         image_paths = convert_pdf_to_images(
             pdf_path=pdf_path, output_dir=images_subdir, max_pages=MAX_PAGES,
         )
-        data = extract_invoice_from_images(image_paths)
+        data = extract_invoice_from_images(image_paths, model=model)
 
     return {"raw_text": raw_text, "method": method,
             "image_paths": image_paths, "data": data}
@@ -1493,7 +1494,24 @@ def main() -> None:
             """,
             unsafe_allow_html=True,
         )
-        st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
+        # Selector model — utilizatorul alege intre viteza (1.5b) si precizie (3b).
+        st.markdown("<div style='height:0.8rem;'></div>", unsafe_allow_html=True)
+        accuracy = st.radio(
+            label="Extraction accuracy",
+            options=("Fast", "Precise"),
+            index=1,  # default Precise — calitate inainte de viteza
+            horizontal=True,
+            help=(
+                "Fast: qwen2.5:1.5b (~15s) — bun pentru facturi simple, "
+                "poate rata campuri pe layout-uri complexe.\n"
+                "Precise: qwen2.5:3b (~25s) — recomandat pentru demo si "
+                "facturi cu mai multe firme/sectiuni."
+            ),
+        )
+        selected_model = "qwen2.5:1.5b" if accuracy == "Fast" else "qwen2.5:3b"
+        st.caption(f"Model: `{selected_model}`")
+
+        st.markdown("<div style='height:0.8rem;'></div>", unsafe_allow_html=True)
         analyze = st.button(
             "Analyze invoice",
             type="primary",
@@ -1531,8 +1549,8 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-        # Stage 0 → 1: extracting
-        result = run_pipeline(pdf_path)
+        # Stage 0 → 1: extracting (cu model-ul ales de utilizator)
+        result = run_pipeline(pdf_path, model=selected_model)
         method_label = "digital text" if result["method"] == "text" else "vision OCR"
         pl_slot.markdown(
             render_pipeline_visualizer(

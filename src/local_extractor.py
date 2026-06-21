@@ -238,35 +238,27 @@ def _ollama_client() -> ollama.Client:
     return ollama.Client(host=OLLAMA_HOST)
 
 
-def _run_ollama(prompt: str) -> str:
+def _run_ollama(prompt: str, model: Optional[str] = None) -> str:
     """
     Send a prompt to the local Ollama server with strict JSON schema.
 
-    Uses Ollama's structured output feature: passing a JSON Schema as `format`
-    forces the model to produce output matching that schema at the tokenizer
-    level. This is MUCH more reliable than asking via prompt — small models
-    (Llama 3.2 3B) often ignore textual instructions but cannot violate the
-    grammar enforced by the JSON Schema.
-
-    Critical: ALL numeric fields are declared as "string" type. The LLM is
-    physically prevented from outputting "29.5" when the invoice shows
-    "29.500" — it must keep the original text. The downstream Pydantic
-    OptFloat coercer then applies Romanian-aware parsing.
+    Args:
+        prompt: user message text.
+        model: optional Ollama model override (e.g. "qwen2.5:3b"). If None,
+               uses the OLLAMA_MODEL from config (i.e. .env default).
 
     Returns the raw text response. Raises RuntimeError if the local server
     is not reachable or the configured model is not installed.
     """
+    selected_model = (model or OLLAMA_MODEL).strip()
     client = _ollama_client()
     try:
         response = client.chat(
-            model=OLLAMA_MODEL,
+            model=selected_model,
             format=_INVOICE_JSON_SCHEMA,  # tokenizer-level schema enforcement
             options={
                 "temperature": 0,
-                # Smaller context window = faster KV-cache allocation and inference.
-                # 4 096 tokens is more than enough for a full invoice prompt + JSON.
                 "num_ctx": 4096,
-                # Cap output tokens — invoice JSON is typically 400-700 tokens.
                 "num_predict": 1024,
             },
             messages=[
@@ -277,8 +269,8 @@ def _run_ollama(prompt: str) -> str:
     except ollama.ResponseError as exc:
         raise RuntimeError(
             f"Ollama server error: {exc}. Make sure Ollama is running "
-            f"(`ollama serve`) and the model `{OLLAMA_MODEL}` is installed "
-            f"(`ollama pull {OLLAMA_MODEL}`)."
+            f"(`ollama serve`) and the model `{selected_model}` is installed "
+            f"(`ollama pull {selected_model}`)."
         ) from exc
     except Exception as exc:  # noqa: BLE001
         raise RuntimeError(
@@ -289,7 +281,10 @@ def _run_ollama(prompt: str) -> str:
     return response.get("message", {}).get("content", "") or ""
 
 
-def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
+def extract_invoice_from_text(
+    raw_text: str,
+    model: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Extract invoice fields from raw text using the local Ollama model.
 
@@ -299,6 +294,10 @@ def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
     Returns:
         Dict matching the schema in :data:`JSON_SCHEMA_DESCRIPTION`.
 
+    Args:
+        raw_text: text from PyMuPDF or Tesseract OCR.
+        model: optional Ollama model override (e.g. "qwen2.5:3b").
+
     Raises:
         ValueError: if the text is empty.
         RuntimeError: if Ollama is unreachable or the response is invalid.
@@ -306,8 +305,6 @@ def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
     if not raw_text or not raw_text.strip():
         raise ValueError("Invoice text is empty; cannot process.")
 
-    # Truncate long inputs — invoices rarely need more than 6 000 chars and
-    # shorter prompts reduce Ollama tokenization + inference time substantially.
     _MAX_INPUT = 6_000
     if len(raw_text) > _MAX_INPUT:
         raw_text = raw_text[:_MAX_INPUT]
@@ -320,7 +317,7 @@ def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
         f"{raw_text}\n>>>"
     )
 
-    raw_response = _run_ollama(user_prompt)
+    raw_response = _run_ollama(user_prompt, model=model)
     parsed = parse_json_safe(raw_response)
 
     if not parsed:
@@ -334,12 +331,13 @@ def extract_invoice_from_text(raw_text: str) -> Dict[str, Any]:
 
 def extract_invoice_from_images(
     image_paths: List[Union[str, Path]],
+    model: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Extract invoice fields from one or more rendered PDF page images.
 
     Pipeline: Tesseract OCR -> Ollama structuring. Both steps run entirely
-    on the local machine.
+    on the local machine. `model` allows overriding OLLAMA_MODEL per call.
     """
     if not image_paths:
         raise ValueError("No image paths provided for OCR.")
@@ -352,7 +350,7 @@ def extract_invoice_from_images(
             "Try `brew install tesseract tesseract-lang`."
         )
 
-    return extract_invoice_from_text(raw_text)
+    return extract_invoice_from_text(raw_text, model=model)
 
 
 # =============================================================================
