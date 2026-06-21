@@ -80,11 +80,12 @@ DEFENSE_DATE: str = "May 2026"
 # Host-ul serverului Ollama. Default este 11434 (port standard ollama).
 OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434").strip()
 
-# Modelul Ollama. Recomandari (pulled cu `ollama pull <nume>`):
-#   "llama3.2:3b"     - ~2GB, rapid pe Apple Silicon, calitate buna pentru JSON
-#   "qwen2.5:3b"      - ~2GB, alternativ, foarte bun la structured output
-#   "llama3.1:8b"     - ~5GB, mai precis dar mai lent
-OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2:3b").strip()
+# Modelul Ollama default (folosit cand utilizatorul nu alege explicit din UI).
+# Recomandari:
+#   "qwen2.5:3b"     - ~2GB, excelent la structured output, ~25s pe CPU (DEFAULT)
+#   "qwen2.5:1.5b"   - ~1GB, mai rapid (~15s), poate rata campuri pe layout-uri complexe
+#   "llama3.1:8b"    - ~5GB, mai precis dar mult mai lent pe CPU
+OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:3b").strip()
 
 # Limbile folosite de Tesseract. "ron" = romana, "eng" = engleza.
 # Necesita instalarea pachetelor: `brew install tesseract tesseract-lang`.
