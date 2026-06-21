@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SAGABridge — Open-source, privacy-first pipeline that turns PDF invoices into SAGA-ready XML in under 30 seconds, running entirely on-device. Master's dissertation project at University POLITEHNICA of Bucharest, FAIMA.">
+<title>SAGABridge — Invoice Digitalization &amp; SAGA Integration</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+:root {
+    --ink:        #1B1714;
+    --ink-soft:   #4D4538;
+    --ink-quiet:  #807766;
+    --ink-faint:  #B5AB99;
+    --paper:      #FAF7F0;
+    --paper-deep: #F2EDE0;
+    --paper-warm: #EFE9D7;
+    --rule:       #DDD6C2;
+    --rule-soft:  #E8E2D2;
+    --surface:    #FFFFFF;
+    --accent:     #7A1820;
+    --accent-soft:#9E2A33;
+    --accent-wash:#F4E8E5;
+    --ok:         #2C5F3B;
+    --ok-wash:    #E5EDE2;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 150ms ease, color 150ms ease;
+}
+a:hover {
+    color: var(--accent-soft);
+    border-bottom-color: currentColor;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+.container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.academic-bar {
+    border-bottom: 1px solid var(--rule);
+    padding: 1.2rem 0;
+    background: var(--paper-deep);
+    color: var(--ink-quiet);
+}
+.academic-bar .container {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+}
+.academic-bar .crest {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.academic-bar .crest img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+}
+.academic-bar .acad-text {
+    text-align: center;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    line-height: 1.5;
+}
+.academic-bar .acad-text strong {
+    color: var(--ink-soft);
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+.academic-bar .acad-text .programme {
+    color: var(--ink-quiet);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.82rem;
+    font-weight: 400;
+    margin-top: 0.25rem;
+}
+
+.hero {
+    padding: 5rem 0 4rem;
+    text-align: center;
+    border-bottom: 1px solid var(--rule);
+}
+.hero .eyebrow {
+    font-family: 'Geist', sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-quiet);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+.hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.6rem;
+    font-variation-settings: "opsz" 144;
+}
+.hero .tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-bottom: 2rem;
+    font-variation-settings: "opsz" 36;
+}
+.hero .lead {
+    max-width: 64ch;
+    margin: 0 auto 2.4rem;
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+}
+.hero .cta {
+    display: inline-block;
+    padding: 0.9rem 1.8rem;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 0.96rem;
+    border-radius: 6px;
+    border: none;
+    border-bottom: none;
+    letter-spacing: 0.01em;
+    transition: background 200ms ease, transform 200ms ease;
+}
+.hero .cta:hover {
+    background: var(--accent);
+    color: var(--paper);
+    border-bottom: none;
+    transform: translateY(-2px);
+}
+.hero .cta-secondary {
+    display: inline-block;
+    margin-left: 1rem;
+    color: var(--ink-soft);
+    font-family: 'Geist', sans-serif;
+    font-weight: 500;
+    font-size: 0.96rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+}
+.hero .cta-secondary:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+section.editorial {
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--rule);
+}
+.section-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 500;
+    font-variation-settings: 'lnum';
+    margin-right: 0.6rem;
+}
+section h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-variation-settings: "opsz" 60;
+}
+section .lede {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 64ch;
+    margin-bottom: 2rem;
+}
+section p {
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+section p strong {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem 2.5rem;
+    margin-top: 2.5rem;
+}
+.feature {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.4rem;
+}
+.feature .feature-num {
+    font-family: 'Geist', sans-serif;
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-quiet);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.feature h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+    font-variation-settings: "opsz" 24;
+}
+.feature p {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.stack-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem 1.5rem;
+    margin-top: 2rem;
+}
+.stack-list li {
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--rule-soft);
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.86rem;
+    color: var(--ink);
+}
+.stack-list li::before {
+    content: "›  ";
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.cta-section {
+    background: var(--paper-deep);
+    padding: 5rem 0;
+    text-align: center;
+    border-bottom: 1px solid var(--rule);
+}
+.cta-section .big-cta {
+    display: inline-block;
+    padding: 1.1rem 2.4rem;
+    background: var(--accent);
+    color: var(--paper);
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border-radius: 6px;
+    margin-top: 1.6rem;
+    letter-spacing: 0.01em;
+    transition: background 200ms ease, transform 200ms ease;
+    border-bottom: none;
+    box-shadow: 0 4px 0 rgba(122, 24, 32, 0.15);
+}
+.cta-section .big-cta:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    color: var(--paper);
+    border-bottom: none;
+}
+.cta-section .url-display {
+    display: inline-block;
+    margin-top: 1.2rem;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--ink-quiet);
+    padding: 0.4rem 0.8rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+}
+
+.credits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2.5rem;
+}
+.credit-block .label-mini {
+    font-family: 'Geist', sans-serif;
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-quiet);
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    display: block;
+}
+.credit-block .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+    font-variation-settings: "opsz" 24;
+}
+.credit-block .links {
+    font-size: 0.88rem;
+    color: var(--ink-quiet);
+    margin-top: 0.4rem;
+}
+.credit-block .links a {
+    margin-right: 0.4rem;
+}
+
+.site-footer {
+    padding: 3rem 0 2rem;
+    background: var(--paper-deep);
+    border-top: 1px solid var(--rule);
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--ink-quiet);
+    line-height: 1.7;
+}
+.site-footer strong { color: var(--ink-soft); font-weight: 600; }
+.site-footer .place {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-top: 0.6rem;
+    font-size: 0.94rem;
+}
+.site-footer .footnote {
+    margin-top: 1.4rem;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+}
+
+.highlight-box {
+    background: var(--accent-wash);
+    border-left: 3px solid var(--accent);
+    padding: 1.4rem 1.8rem;
+    margin: 2rem 0;
+    border-radius: 0 6px 6px 0;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink);
+    line-height: 1.6;
+    font-variation-settings: "opsz" 24;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.hero, section.editorial, .cta-section {
+    animation: fadeUp 500ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-width: 768px) {
+    .academic-bar .container {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        text-align: center;
+    }
+    .academic-bar .crest { justify-self: center; }
+    .academic-bar .crest img { width: 50px; height: 50px; }
+    .academic-bar .acad-text { font-size: 0.68rem; }
+    .academic-bar .acad-text .programme { font-size: 0.78rem; }
+    .hero { padding: 3rem 0; }
+    .hero .cta-secondary { display: block; margin: 1rem 0 0; }
+    section.editorial { padding: 3.5rem 0; }
+    .features-grid { gap: 2rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- =================== ACADEMIC HEADER =================== -->
+<div class="academic-bar">
+    <div class="container">
+        <div class="crest">
+            <img src="logo_upb.png" alt="University POLITEHNICA of Bucharest">
+        </div>
+        <div class="acad-text">
+            <strong>University POLITEHNICA of Bucharest</strong>
+            Faculty of Entrepreneurship, Business Engineering and Management
+            <div class="programme">Management of Digital Enterprises</div>
+        </div>
+        <div class="crest">
+            <img src="logo_faima.png" alt="Faculty FAIMA">
+        </div>
+    </div>
+</div>
+
+<!-- =================== HERO =================== -->
+<header class="hero">
+    <div class="container">
+        <div class="eyebrow">Master&rsquo;s dissertation · May 2026</div>
+        <h1>SAGABridge</h1>
+        <p class="tagline">Invoice Digitalization and Integration with SAGA</p>
+        <p class="lead">
+            An open-source, privacy-first pipeline that turns PDF invoices into
+            SAGA-ready XML in under 30 seconds &mdash; while running entirely on
+            your own machine. Hybrid local extraction, cross-checked against
+            ANAF and VIES, scored for risk, and packaged for direct accounting
+            import.
+        </p>
+        <a class="cta" href="https://app.sagabridge.live">Try the live demo &nbsp;&rarr;</a>
+        <a class="cta-secondary" href="#about">Read more &nbsp;&darr;</a>
+    </div>
+</header>
+
+<!-- =================== §1 ABOUT =================== -->
+<section id="about" class="editorial">
+    <div class="container">
+        <h2><span class="section-num">§1</span>What it does</h2>
+        <p class="lede">
+            Every small-business accountant spends 6&ndash;10 hours a month
+            keying invoice data into accounting software. That work is slow,
+            error-prone, and lacks any verification step &mdash; if the
+            supplier on the invoice doesn&rsquo;t actually exist, the cost
+            still hits the books and the discrepancy surfaces months later.
+        </p>
+        <p>
+            <strong>SAGABridge automates that entire flow.</strong> Upload an
+            invoice PDF and the application extracts every field, verifies
+            both supplier and customer against the Romanian ANAF registry and
+            the EU VIES database, computes a heuristic risk score, and
+            produces an XML compatible with SAGA&rsquo;s import format.
+        </p>
+        <p>
+            What separates this project from commercial OCR products is the
+            architectural choice to run <strong>nothing on the cloud</strong>.
+            Local LLM via Ollama, local OCR via Tesseract, verifications via
+            public registries. No OpenAI, no Google, no commercial APIs in
+            the production pipeline. The invoice never leaves the user&rsquo;s
+            machine.
+        </p>
+
+        <div class="highlight-box">
+            For a Romanian SME processing 200 invoices/month, the manual flow
+            takes 6&ndash;10 hours. SAGABridge handles the same volume in
+            under 2 hours of unattended runtime, with full verification of
+            every counterparty included.
+        </div>
+    </div>
+</section>
+
+<!-- =================== §2 FEATURES =================== -->
+<section class="editorial">
+    <div class="container">
+        <h2><span class="section-num">§2</span>What&rsquo;s inside</h2>
+        <p class="lede">
+            Six pipeline stages, each chosen deliberately to balance speed,
+            accuracy, and privacy. Every component is open-source.
+        </p>
+
+        <div class="features-grid">
+            <div class="feature">
+                <span class="feature-num">01</span>
+                <h3>Hybrid extraction</h3>
+                <p>
+                    PyMuPDF first for digital PDFs &mdash; instant and free.
+                    Tesseract OCR fallback for scanned documents. Local LLM
+                    (Qwen 2.5) for semantic structuring of the resulting text.
+                </p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">02</span>
+                <h3>Dual-party verification</h3>
+                <p>
+                    Both supplier and customer cross-checked in parallel
+                    against ANAF (for RO companies) and VIES (for any EU VAT
+                    number). Auto-fallback between providers.
+                </p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">03</span>
+                <h3>Online presence audit</h3>
+                <p>
+                    DuckDuckGo search plus direct domain probing finds the
+                    company&rsquo;s official website, registry pages, social
+                    profiles, and press mentions &mdash; classified into four
+                    badges.
+                </p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">04</span>
+                <h3>Heuristic risk score</h3>
+                <p>
+                    0&ndash;100 additive score from verification status,
+                    tax-ID mismatch, company status, and negative news
+                    keywords. Bucketed into low/medium/high with explicit
+                    warnings.
+                </p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">05</span>
+                <h3>SAGA-ready XML</h3>
+                <p>
+                    Deterministic ElementTree-based serialization. Includes
+                    the full verification dossier for both parties as an
+                    audit trail embedded in the document.
+                </p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">06</span>
+                <h3>100% on-device AI</h3>
+                <p>
+                    Stack: Ollama with Qwen 2.5 3B, Tesseract OCR, ANAF/VIES
+                    APIs, DuckDuckGo. Zero cloud LLM. Zero data leaving the
+                    user&rsquo;s server. GDPR by architecture, not by promise.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== §3 TECH STACK =================== -->
+<section class="editorial">
+    <div class="container">
+        <h2><span class="section-num">§3</span>Technology stack</h2>
+        <p class="lede">
+            Twelve components, all open-source, composed into a single
+            pipeline. Each addresses a specific concern from the original
+            problem statement.
+        </p>
+
+        <ul class="stack-list">
+            <li>Streamlit &mdash; UI</li>
+            <li>Python 3.12 &mdash; runtime</li>
+            <li>Ollama &mdash; local LLM server</li>
+            <li>Qwen 2.5 3B &mdash; structured extraction</li>
+            <li>Tesseract OCR &mdash; scanned PDF fallback</li>
+            <li>PyMuPDF &mdash; digital PDF parsing</li>
+            <li>Pydantic v2 &mdash; schema validation</li>
+            <li>ElementTree &mdash; deterministic XML</li>
+            <li>ANAF API &mdash; RO company registry</li>
+            <li>VIES &mdash; EU VAT validation</li>
+            <li>DuckDuckGo &mdash; online mentions</li>
+            <li>nginx + Let&rsquo;s Encrypt &mdash; reverse proxy + SSL</li>
+        </ul>
+    </div>
+</section>
+
+<!-- =================== §4 LIVE DEMO =================== -->
+<section class="cta-section">
+    <div class="container">
+        <h2><span class="section-num">§4</span>Try it live</h2>
+        <p class="lede" style="margin-left: auto; margin-right: auto;">
+            The full application is hosted at the URL below. Drop an invoice
+            PDF, watch the four-stage pipeline run, and download a
+            SAGA-compatible XML with both parties verified.
+        </p>
+        <a class="big-cta" href="https://app.sagabridge.live">Open the application &nbsp;&rarr;</a>
+        <div>
+            <span class="url-display">https://app.sagabridge.live</span>
+        </div>
+    </div>
+</section>
+
+<!-- =================== §5 CREDITS =================== -->
+<section class="editorial">
+    <div class="container">
+        <h2><span class="section-num">§5</span>Credits</h2>
+
+        <div class="credits-grid">
+            <div class="credit-block">
+                <span class="label-mini">Author</span>
+                <div class="name">Ing. David-Adrian B&abreve;b&tcedil;an</div>
+                <div class="links">
+                    <a href="https://www.linkedin.com/in/david-adrian-b-b22aa5205/" target="_blank" rel="noopener">LinkedIn</a>
+                </div>
+            </div>
+
+            <div class="credit-block">
+                <span class="label-mini">Scientific advisor</span>
+                <div class="name">Conf. dr. ing. Silviu R&abreve;ileanu</div>
+                <div class="links">
+                    <a href="https://aii.pub.ro/cadre-didactice/membrii-titulari/raileanu-silviu/1490/" target="_blank" rel="noopener">UPB Profile</a>
+                    <a href="https://ro.linkedin.com/in/silviu-raileanu-b8b46699" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://www.researchgate.net/profile/Silviu-Raileanu" target="_blank" rel="noopener">ResearchGate</a>
+                </div>
+            </div>
+
+            <div class="credit-block">
+                <span class="label-mini">Place &amp; date</span>
+                <div class="name">Bucharest</div>
+                <div class="links">May 2026</div>
+            </div>
+
+            <div class="credit-block">
+                <span class="label-mini">Programme</span>
+                <div class="name">Management of Digital Enterprises</div>
+                <div class="links">Faculty FAIMA &middot; UPB</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="site-footer">
+    <div class="container">
+        <div>
+            <strong>SAGABridge</strong> &mdash; Invoice Digitalization and Integration with SAGA
+        </div>
+        <div>
+            University POLITEHNICA of Bucharest &middot; Faculty of Entrepreneurship, Business Engineering and Management
+        </div>
+        <div class="place">Bucharest, May 2026</div>
+        <div class="footnote">
+            Open-source, privacy-first invoice digitalization.
+            &copy; 2026 David-Adrian B&abreve;b&tcedil;an.
+            Academic project under the supervision of Conf. dr. ing. Silviu R&abreve;ileanu.
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
