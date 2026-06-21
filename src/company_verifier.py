@@ -28,6 +28,16 @@ from .config import (
     COMPANY_API_PROVIDER,
     ENABLE_COMPANY_VERIFICATION,
 )
+
+
+# =============================================================================
+# In-memory cache — accelereaza facturile cu firme repetate in aceeasi sesiune
+# =============================================================================
+# Cheia: (provider, normalized_tax_id). Valoarea: CompanyVerification.
+# Cache-ul e procesual — moare la restart streamlit. Hit pe acelasi furnizor
+# de mai multe ori salveaza ~2-3 secunde per cerere.
+_VERIFY_CACHE: Dict[str, Any] = {}
+_CACHE_MAX_SIZE = 256   # FIFO simplu — eviction LRU n-are valoare aici
 from .schema import CompanyVerification
 
 
@@ -67,6 +77,14 @@ def _safe_get(d: Dict[str, Any], *keys: str) -> Optional[Any]:
 # =============================================================================
 # Provider dispatcher
 # =============================================================================
+def _cache_key(provider: str, tax_id: Optional[str]) -> Optional[str]:
+    """Build cache key — only cache successful tax_id-based lookups."""
+    tid = normalize_tax_id(tax_id)
+    if not tid:
+        return None
+    return f"{provider.lower()}::{tid}"
+
+
 def verify_company(
     company_name: Optional[str],
     tax_id: Optional[str],
@@ -84,6 +102,11 @@ def verify_company(
         return CompanyVerification(status="insufficient_data")
 
     provider = (COMPANY_API_PROVIDER or "").strip().lower()
+
+    # Cache hit (acelasi provider + acelasi tax_id) — instant return.
+    ck = _cache_key(provider, tax_id)
+    if ck and ck in _VERIFY_CACHE:
+        return _VERIFY_CACHE[ck]
 
     # Dispatch to the primary provider — all backends are local / official
     # public APIs. No cloud LLM is used.
@@ -125,8 +148,15 @@ def verify_company(
                     f"used ANAF fallback."
                 )
                 anaf.error = (anaf.error + " | " if anaf.error else "") + note
+                # Salvam in cache si fallback-ul reusit.
+                fk = _cache_key("anaf", tax_id)
+                if fk and len(_VERIFY_CACHE) < _CACHE_MAX_SIZE:
+                    _VERIFY_CACHE[fk] = anaf
                 return anaf
 
+    # Cache hit pe rezultatul primary (numai pentru CIF verificat cu succes).
+    if ck and primary.verified and len(_VERIFY_CACHE) < _CACHE_MAX_SIZE:
+        _VERIFY_CACHE[ck] = primary
     return primary
 
 

@@ -1553,14 +1553,25 @@ def main() -> None:
         )
 
         def _audit_party(party):
-            """Run the full verification chain for a single party."""
-            ver = verify_company(
-                company_name=party.name, tax_id=party.tax_id,
-            )
+            """
+            Run the full verification chain for a single party.
+
+            Optimization: verify_company (~2-3s) and search_company_mentions
+            (~5-7s) are independent — they share no data dependency. We run
+            them in parallel within the party, cutting the per-party time
+            from sum(ver, news) to max(ver, news).
+            """
+            with ThreadPoolExecutor(max_workers=2) as inner_pool:
+                ver_fut = inner_pool.submit(
+                    verify_company, company_name=party.name, tax_id=party.tax_id,
+                )
+                news_fut = inner_pool.submit(
+                    search_company_mentions,
+                    company_name=party.name, tax_id=party.tax_id,
+                )
+                ver = ver_fut.result()
+                news = news_fut.result()
             cmp = compare_invoice_supplier_with_verified_data(party, ver)
-            news = search_company_mentions(
-                company_name=party.name, tax_id=party.tax_id,
-            )
             risk = analyze_company_risk(ver, cmp, news)
             return ver, cmp, news, risk
 

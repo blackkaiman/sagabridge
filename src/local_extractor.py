@@ -130,31 +130,15 @@ When you see a number like "29.500" in a Romanian invoice context, it is
 ALMOST ALWAYS twenty-nine thousand five hundred, NOT twenty-nine point five.
 Copy the number AS A STRING exactly as written; do not normalize it.
 
-ROMANIAN INVOICE FIELD LABELS (CRITICAL — map these labels to JSON fields):
-
-  Label on invoice                          -> JSON field
-  ─────────────────────────────────────────────────────────
-  "Vânzător:" / "Furnizor:" / "Emitent:"   -> supplier
-  "Cumpărător:" / "Client:" / "Beneficiar:" -> customer
-  "CIF:" / "CUI:" / "Cod Fiscal:"           -> tax_id (e.g., "43964751" or "RO37082832")
-  "Nr. ord. reg. com." / "RegCom" / "J.../F.../C..."  -> registration_number
-  "Adresă:" / "Adresa:" / "Sediu:"          -> address
-  "IBAN:" / "Cont:" / "Cont bancar:"        -> iban
-  "Banca:" / "Bancă:"                       -> bank
-  "Seria și numărul" / "Nr. factură" / "Factura"      -> invoice_number
-  "Data facturii" / "Data emiterii"         -> invoice_date
-  "Termen de plată" / "Data scadenței"      -> due_date
-  "U.M." / "buc" / "kg" / "ore"             -> (part of items)
-  "Cantitate" / "Cant."                     -> items[].quantity
-  "Preț unitar" / "Pret unitar"             -> items[].unit_price
-  "Valoare" / "Valoare Totală"              -> items[].net_amount or gross_amount
-  "TVA"                                     -> items[].vat_amount or totals.vat_total
-  "Total"                                   -> totals.grand_total
-
-CRITICAL: The CIF / CUI is ALWAYS a string of digits (sometimes prefixed with
-"RO"). When you see "CIF: 43964751" or "CUI: RO37082832", extract that number
-as the tax_id. Do NOT skip this field — it is the most important identifier
-for the company.
+RO field labels:
+  Vânzător/Furnizor/Emitent → supplier · Cumpărător/Client/Beneficiar → customer
+  CIF/CUI/Cod Fiscal → tax_id (digits, optional RO prefix, ALWAYS extract)
+  Nr. ord. reg. com./RegCom → registration_number · IBAN/Cont → iban · Banca → bank
+  Adresă/Sediu → address · Seria și numărul/Nr. factură → invoice_number
+  Data facturii → invoice_date · Termen de plată → due_date
+  Cantitate → items[].quantity · Preț unitar → items[].unit_price
+  Valoare → items[].net_amount/gross_amount · TVA → items[].vat_amount/totals.vat_total
+  Total → totals.grand_total
 
 Schema:
 {
