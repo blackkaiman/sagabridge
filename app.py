@@ -69,6 +69,7 @@ from src.validators import (
     validate_xml,
 )
 from src.xml_generator import generate_invoice_xml
+from src.efactura_generator import generate_efactura_xml
 
 
 # =============================================================================
@@ -1393,6 +1394,9 @@ def main() -> None:
                     validate_xml(_xml_str)
                     _xml_fn = get_timestamped_filename(Path(_uf.name).stem + ".xml")
                     (OUTPUTS_DIR / _xml_fn).write_text(_xml_str, encoding="utf-8")
+                    _efact_str = generate_efactura_xml(_inv)
+                    _efact_fn = _xml_fn.replace(".xml", "_efactura.xml")
+                    (OUTPUTS_DIR / _efact_fn).write_text(_efact_str, encoding="utf-8")
                     _bulk.append({
                         "name": _uf.name, "status": "ok",
                         "supplier": _inv.supplier.name or "—",
@@ -1403,7 +1407,8 @@ def main() -> None:
                             if _inv.totals.grand_total is not None else "—"
                         ),
                         "time": time.time() - _t0,
-                        "xml_str": _xml_str, "xml_fn": _xml_fn, "error": None,
+                        "xml_str": _xml_str, "xml_fn": _xml_fn,
+                        "efact_str": _efact_str, "efact_fn": _efact_fn, "error": None,
                     })
                 except Exception as _exc:  # noqa: BLE001
                     _bulk.append({
@@ -1445,11 +1450,18 @@ def main() -> None:
                 with _c5:
                     if _r["xml_str"]:
                         st.download_button(
-                            "XML",
+                            "SAGA",
                             data=_r["xml_str"].encode("utf-8"),
                             file_name=_r["xml_fn"],
                             mime="application/xml",
                             key=f"dl_bulk_{_r['xml_fn']}",
+                        )
+                        st.download_button(
+                            "e-Factura",
+                            data=_r["efact_str"].encode("utf-8"),
+                            file_name=_r["efact_fn"],
+                            mime="application/xml",
+                            key=f"dl_bulk_ef_{_r['efact_fn']}",
                         )
 
             # ZIP archive with all successful XMLs
@@ -1457,7 +1469,8 @@ def main() -> None:
                 _zip_buf = io.BytesIO()
                 with zipfile.ZipFile(_zip_buf, "w", zipfile.ZIP_DEFLATED) as _zf:
                     for _r in _ok:
-                        _zf.writestr(_r["xml_fn"], _r["xml_str"])
+                        _zf.writestr(f"saga/{_r['xml_fn']}", _r["xml_str"])
+                        _zf.writestr(f"efactura/{_r['efact_fn']}", _r["efact_str"])
                 _zip_buf.seek(0)
                 st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
                 st.download_button(
@@ -1713,14 +1726,36 @@ def main() -> None:
             )
 
         with tab_xml:
-            st.code(xml_str, language="xml")
-            st.download_button(
-                "Download XML",
-                data=xml_str.encode("utf-8"),
-                file_name=xml_filename,
-                mime="application/xml",
-                type="primary",
-            )
+            # Doua formate de export: SAGA (schema proprie) si e-Factura (UBL 2.1 / RO_CIUS).
+            efactura_str = generate_efactura_xml(invoice)
+            efactura_filename = xml_filename.replace(".xml", "_efactura.xml")
+
+            fmt_saga, fmt_efact = st.tabs(["Format SAGA", "Format e-Factura (UBL)"])
+            with fmt_saga:
+                st.code(xml_str, language="xml")
+                st.download_button(
+                    "⬇ Download XML — format SAGA",
+                    data=xml_str.encode("utf-8"),
+                    file_name=xml_filename,
+                    mime="application/xml",
+                    type="primary",
+                    key="dl_saga",
+                )
+            with fmt_efact:
+                st.caption(
+                    "UBL 2.1 conform EN 16931 / RO_CIUS — structură validă pentru "
+                    "RO e-Factura. Verificați câmpurile obligatorii (CUI, cotă TVA, "
+                    "adresă/oraș) înainte de transmiterea în SPV-ANAF."
+                )
+                st.code(efactura_str, language="xml")
+                st.download_button(
+                    "⬇ Download XML — format e-Factura",
+                    data=efactura_str.encode("utf-8"),
+                    file_name=efactura_filename,
+                    mime="application/xml",
+                    type="primary",
+                    key="dl_efactura",
+                )
 
         with tab_json:
             json_str = json.dumps(invoice.model_dump(), ensure_ascii=False, indent=2)
