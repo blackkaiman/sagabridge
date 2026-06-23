@@ -34,6 +34,11 @@ UPLOADS_DIR: Path = PROJECT_ROOT / "data" / "uploads"
 # Directorul unde sunt salvate fisierele de iesire (XML, JSON, imagini).
 OUTPUTS_DIR: Path = PROJECT_ROOT / "data" / "outputs"
 
+# Directorul de cache pentru rezultatele pipeline-ului (pre-procesare facturi).
+# Permite servirea instant a unei facturi deja procesate (indexata dupa
+# hash-ul continutului PDF), sarind peste pasul lent de extragere cu LLM.
+CACHE_DIR: Path = PROJECT_ROOT / "data" / "cache"
+
 # Directorul cu resurse statice (logo-uri institutionale).
 ASSETS_DIR: Path = PROJECT_ROOT / "assets"
 

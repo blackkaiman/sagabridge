@@ -29,6 +29,7 @@ from src.config import (
     DEFENSE_LOCATION,
     FACULTY,
     FAIMA_LOGO_PATH,
+    CACHE_DIR,
     MASTER_PROGRAM,
     MAX_PAGES,
     OLLAMA_MODEL,
@@ -70,6 +71,7 @@ from src.validators import (
 )
 from src.xml_generator import generate_invoice_xml
 from src.efactura_generator import generate_efactura_xml
+from src.result_cache import cache_key, load as cache_load, save as cache_save
 
 
 # =============================================================================
@@ -1284,7 +1286,18 @@ def render_colophon() -> None:
 # Pipeline
 # =============================================================================
 def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
-    """Run the full extraction pipeline. `model` overrides OLLAMA_MODEL."""
+    """Run the full extraction pipeline. `model` overrides OLLAMA_MODEL.
+
+    Rezultatul extragerii (pasul lent, cu LLM) este memorat pe disc, indexat
+    dupa hash-ul continutului PDF + model. La o re-incarcare a aceluiasi fisier
+    raspunsul este servit instant din cache, fara a mai rula Ollama.
+    """
+    key = cache_key(pdf_path, model)
+    cached = cache_load(CACHE_DIR, key)
+    if cached is not None:
+        cached["cached"] = True
+        return cached
+
     raw_text = extract_text_from_pdf(pdf_path)
 
     if is_text_sufficient(raw_text):
@@ -1300,8 +1313,14 @@ def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
         )
         data = extract_invoice_from_images(image_paths, model=model)
 
-    return {"raw_text": raw_text, "method": method,
-            "image_paths": image_paths, "data": data}
+    result = {"raw_text": raw_text, "method": method,
+              "image_paths": [str(p) for p in image_paths], "data": data,
+              "cached": False}
+    try:
+        cache_save(CACHE_DIR, key, result)
+    except OSError:
+        pass  # daca scrierea in cache esueaza, continuam fara cache
+    return result
 
 
 # =============================================================================
@@ -1312,6 +1331,7 @@ def main() -> None:
 
     ensure_directory(UPLOADS_DIR)
     ensure_directory(OUTPUTS_DIR)
+    ensure_directory(CACHE_DIR)
 
     render_titlepage()
     render_biblio_strip()
@@ -1644,7 +1664,10 @@ def main() -> None:
         # Final state — all four stations done.
         pl_slot.markdown(
             render_pipeline_visualizer(
-                4, f"Complete in {elapsed:.1f}s · saved as {xml_path.name}"
+                4,
+                f"Complete in {elapsed:.1f}s"
+                f"{' · ⚡ cached' if result.get('cached') else ''}"
+                f" · saved as {xml_path.name}"
             ),
             unsafe_allow_html=True,
         )
