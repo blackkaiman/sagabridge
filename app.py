@@ -1292,7 +1292,9 @@ def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
     dupa hash-ul continutului PDF + model. La o re-incarcare a aceluiasi fisier
     raspunsul este servit instant din cache, fara a mai rula Ollama.
     """
-    key = cache_key(pdf_path, model)
+    # Folosim modelul EFECTIV (model or default) ca sa partajam cache-ul intre
+    # modul bulk (model=None) si single (model explicit), cand modelul e acelasi.
+    key = cache_key(pdf_path, model or OLLAMA_MODEL)
     cached = cache_load(CACHE_DIR, key)
     if cached is not None:
         cached["cached"] = True
