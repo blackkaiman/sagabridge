@@ -51,6 +51,23 @@ def load(cache_dir: _PathLike, key: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+def load_any(cache_dir: _PathLike, file_hash: str) -> Optional[Dict[str, Any]]:
+    """
+    Returneaza primul rezultat cache-uit pentru acest CONTINUT de fisier,
+    indiferent de model. Astfel, o factura procesata in Bulk (model default)
+    este servita din cache si in modul Single (orice model), si invers.
+    """
+    d = Path(cache_dir)
+    if not d.exists():
+        return None
+    for p in sorted(d.glob(f"{file_hash}__*.json")):
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+    return None
+
+
 def save(cache_dir: _PathLike, key: str, payload: Dict[str, Any]) -> None:
     """
     Scrie payload-ul in cache, atomic (scrie in .tmp apoi rename), ca o

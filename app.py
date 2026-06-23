@@ -72,7 +72,11 @@ from src.validators import (
 )
 from src.xml_generator import generate_invoice_xml
 from src.efactura_generator import generate_efactura_xml
-from src.result_cache import cache_key, load as cache_load, save as cache_save
+from src.result_cache import (
+    file_sha256,
+    load_any as cache_load_any,
+    save as cache_save,
+)
 
 
 # =============================================================================
@@ -1293,10 +1297,11 @@ def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
     dupa hash-ul continutului PDF + model. La o re-incarcare a aceluiasi fisier
     raspunsul este servit instant din cache, fara a mai rula Ollama.
     """
-    # Folosim modelul EFECTIV (model or default) ca sa partajam cache-ul intre
-    # modul bulk (model=None) si single (model explicit), cand modelul e acelasi.
-    key = cache_key(pdf_path, model or OLLAMA_MODEL)
-    cached = cache_load(CACHE_DIR, key)
+    # Cheia de cache se bazeaza pe CONTINUTUL fisierului. La citire cautam orice
+    # rezultat pentru acest continut, indiferent de model (load_any) — astfel o
+    # factura incalzita in Bulk e servita din cache si in Single, si invers.
+    fhash = file_sha256(pdf_path)
+    cached = cache_load_any(CACHE_DIR, fhash)
     if cached is not None:
         cached["cached"] = True
         return cached
@@ -1320,7 +1325,7 @@ def run_pipeline(pdf_path: Path, model: str | None = None) -> dict:
               "image_paths": [str(p) for p in image_paths], "data": data,
               "cached": False}
     try:
-        cache_save(CACHE_DIR, key, result)
+        cache_save(CACHE_DIR, f"{fhash}__{model or OLLAMA_MODEL}", result)
     except OSError:
         pass  # daca scrierea in cache esueaza, continuam fara cache
     return result
