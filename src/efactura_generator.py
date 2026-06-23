@@ -60,7 +60,7 @@ _CUSTOMIZATION_ID = (
 )
 _DEFAULT_CURRENCY = "RON"
 _DEFAULT_UNIT = "C62"  # cod UN/ECE pentru "bucata"
-_STANDARD_VAT = 19.0   # cota standard RO, folosita doar ca fallback
+_STANDARD_VAT = 21.0   # cota standard RO (21% din 1 aug 2025), doar ca fallback
 
 
 def _cbc(tag: str) -> str:

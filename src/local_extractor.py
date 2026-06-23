@@ -165,7 +165,7 @@ Schema:
       "description": "string|null",
       "quantity": "string|null      (exact text from invoice, e.g. \\"2\\" or \\"1,5\\")",
       "unit_price": "string|null    (exact text from invoice, e.g. \\"29.500\\")",
-      "vat_rate": "string|null      (exact text from invoice, e.g. \\"19\\" or \\"19%\\")",
+      "vat_rate": "string|null      (exact text from invoice, e.g. \\"21\\" or \\"21%\\")",
       "net_amount": "string|null    (exact text from invoice)",
       "vat_amount": "string|null    (exact text from invoice)",
       "gross_amount": "string|null  (exact text from invoice)"
