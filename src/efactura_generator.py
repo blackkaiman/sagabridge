@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
+import unicodedata
 import xml.etree.ElementTree as ET
 from typing import Optional, Union
 from xml.dom import minidom
@@ -136,6 +137,82 @@ def _clean_text(value: Optional[str], fallback: str = "N/A") -> str:
     return s if s else fallback
 
 
+# ISO 3166-2:RO — coduri de judet cerute de RO_CIUS pentru CountrySubentity
+# (regulile BR-RO-110 / BR-RO-111: daca tara e RO, judetul e obligatoriu).
+_COUNTY_CODES = {
+    "alba": "RO-AB", "arad": "RO-AR", "arges": "RO-AG", "bacau": "RO-BC",
+    "bihor": "RO-BH", "bistrita-nasaud": "RO-BN", "bistrita nasaud": "RO-BN",
+    "botosani": "RO-BT", "braila": "RO-BR", "brasov": "RO-BV", "buzau": "RO-BZ",
+    "calarasi": "RO-CL", "caras-severin": "RO-CS", "caras severin": "RO-CS",
+    "cluj": "RO-CJ", "constanta": "RO-CT", "covasna": "RO-CV", "dambovita": "RO-DB",
+    "dolj": "RO-DJ", "galati": "RO-GL", "giurgiu": "RO-GR", "gorj": "RO-GJ",
+    "harghita": "RO-HR", "hunedoara": "RO-HD", "ialomita": "RO-IL", "iasi": "RO-IS",
+    "ilfov": "RO-IF", "maramures": "RO-MM", "mehedinti": "RO-MH", "mures": "RO-MS",
+    "neamt": "RO-NT", "olt": "RO-OT", "prahova": "RO-PH", "satu mare": "RO-SM",
+    "salaj": "RO-SJ", "sibiu": "RO-SB", "suceava": "RO-SV", "teleorman": "RO-TR",
+    "timis": "RO-TM", "tulcea": "RO-TL", "vaslui": "RO-VS", "valcea": "RO-VL",
+    "vrancea": "RO-VN", "bucuresti": "RO-B",
+}
+
+
+def _strip_diacritics(text: str) -> str:
+    """Elimina diacriticele (ă→a, ș→s, ț→t etc.) pentru potrivire robusta."""
+    nfkd = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def _parse_ro_address(address: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """
+    Extrage (oras, cod_judet) dintr-o adresa romaneasca in text liber.
+
+    Returneaza codul ISO 3166-2:RO al judetului (ex. "RO-SJ") si numele
+    orasului. Acopera formate uzuale: "..., Zalău, jud. Sălaj, România"
+    sau "JUD. SĂLAJ, MUN. ZALĂU, STR. ...". Bucureștiul → "RO-B".
+    """
+    if not address:
+        return None, None
+    raw = address.strip()
+    norm = _strip_diacritics(raw).lower()
+
+    subentity: Optional[str] = None
+    if "bucuresti" in norm or re.search(r"\bsector\s*\d", norm):
+        subentity = "RO-B"
+    else:
+        m = re.search(r"jud(?:e[t]?(?:ul)?)?\.?\s+([a-z\- ]+)", norm)
+        if m:
+            cand = re.sub(r"\s+", " ", m.group(1).split(",")[0].strip())
+            subentity = _COUNTY_CODES.get(cand)
+            if not subentity:
+                for key, code in _COUNTY_CODES.items():
+                    if cand.startswith(key):
+                        subentity = code
+                        break
+        if not subentity:
+            for key, code in _COUNTY_CODES.items():
+                if re.search(r"\b" + re.escape(key) + r"\b", norm):
+                    subentity = code
+                    break
+
+    city: Optional[str] = None
+    parts = [p.strip() for p in raw.split(",")]
+    for i, p in enumerate(parts):
+        if _strip_diacritics(p).lower().startswith("jud") and i > 0:
+            city = parts[i - 1]
+            break
+    if not city:
+        m2 = re.search(
+            r"(?:mun\.?|municipiul|oras(?:ul)?|com\.?|comuna)\s+([^,]+)",
+            raw, re.IGNORECASE,
+        )
+        if m2:
+            city = m2.group(1).strip()
+    if city:
+        city = re.sub(r"^[\s\-\d]+", "", city).strip()  # scoate cod postal / "-" din fata
+    if not city and subentity == "RO-B":
+        city = "București"
+    return (city or None, subentity)
+
+
 def _derive_percent(invoice: InvoiceData, item) -> float:
     """Determina cota TVA pentru o linie: din linie, altfel din totaluri, altfel standard."""
     if item is not None and item.vat_rate is not None:
@@ -166,25 +243,43 @@ def _tax_category(percent: float):
 # ---------------------------------------------------------------------------
 # Blocuri de constructie
 # ---------------------------------------------------------------------------
-def _build_address(parent: ET.Element, address: Optional[str]) -> None:
+def _build_address(
+    parent: ET.Element,
+    address: Optional[str],
+    city: Optional[str],
+    subentity: Optional[str],
+) -> None:
+    # Ordinea ceruta de schema UBL: StreetName, CityName, CountrySubentity, Country.
     node = ET.SubElement(parent, _cac("PostalAddress"))
     addr = _clean_text(address, "")
     if addr:
         ET.SubElement(node, _cbc("StreetName")).text = addr[:150]
-    # CityName si Country sunt obligatorii in RO_CIUS.
-    ET.SubElement(node, _cbc("CityName")).text = "N/A"
+    ET.SubElement(node, _cbc("CityName")).text = city or "N/A"
+    if subentity:
+        # BT-39 / BT-54 — obligatoriu cand tara e RO (BR-RO-110 / BR-RO-111).
+        ET.SubElement(node, _cbc("CountrySubentity")).text = subentity
     country = ET.SubElement(node, _cac("Country"))
     ET.SubElement(country, _cbc("IdentificationCode")).text = "RO"
 
 
-def _build_party(parent: ET.Element, tag: str, name, tax_id, reg_no, address) -> None:
+def _build_party(
+    parent: ET.Element, tag: str, name, tax_id, reg_no, address,
+    official_address: Optional[str] = None,
+) -> None:
     holder = ET.SubElement(parent, _cac(tag))
     party = ET.SubElement(holder, _cac("Party"))
 
     pname = ET.SubElement(party, _cac("PartyName"))
     ET.SubElement(pname, _cbc("Name")).text = _clean_text(name)
 
-    _build_address(party, address)
+    # Oras + judet: din adresa de pe factura; daca lipseste judetul,
+    # incercam adresa oficiala (din verificarea ANAF) ca rezerva.
+    city, subentity = _parse_ro_address(address)
+    if (not subentity or not city) and official_address:
+        off_city, off_sub = _parse_ro_address(official_address)
+        subentity = subentity or off_sub
+        city = city or off_city
+    _build_address(party, address or official_address, city, subentity)
 
     vat_id = _vat_company_id(tax_id)
     if vat_id:
@@ -306,15 +401,25 @@ def generate_efactura_xml(invoice_data: Union[InvoiceData, dict]) -> str:
     ET.SubElement(root, _cbc("InvoiceTypeCode")).text = "380"
     ET.SubElement(root, _cbc("DocumentCurrencyCode")).text = currency
 
+    sup_off = (
+        invoice_data.supplier_verification.address
+        if invoice_data.supplier_verification else None
+    )
+    cus_off = (
+        invoice_data.customer_verification.address
+        if invoice_data.customer_verification else None
+    )
     _build_party(
         root, "AccountingSupplierParty",
         invoice_data.supplier.name, invoice_data.supplier.tax_id,
         invoice_data.supplier.registration_number, invoice_data.supplier.address,
+        official_address=sup_off,
     )
     _build_party(
         root, "AccountingCustomerParty",
         invoice_data.customer.name, invoice_data.customer.tax_id,
         invoice_data.customer.registration_number, invoice_data.customer.address,
+        official_address=cus_off,
     )
 
     _build_tax_total(root, invoice_data, currency)
