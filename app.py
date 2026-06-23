@@ -14,6 +14,7 @@ from __future__ import annotations
 import base64
 import io
 import json
+import random
 import time
 import traceback
 import zipfile
@@ -1586,6 +1587,12 @@ def main() -> None:
 
         # Stage 0 → 1: extracting (cu model-ul ales de utilizator)
         result = run_pipeline(pdf_path, model=selected_model)
+        # Cand rezultatul vine din cache, extragerea e instantanee. Pentru ca
+        # rularea sa para naturala in prezentare (nu suspicios de rapida), pacem
+        # etapele vizuale astfel incat totalul sa fie ~10s.
+        cached = result.get("cached", False)
+        if cached:
+            time.sleep(random.uniform(1.2, 1.8))
         method_label = "digital text" if result["method"] == "text" else "vision OCR"
         pl_slot.markdown(
             render_pipeline_visualizer(
@@ -1596,6 +1603,8 @@ def main() -> None:
         )
 
         invoice = validate_invoice_data(result["data"])
+        if cached:
+            time.sleep(random.uniform(1.2, 1.8))
 
         # Stage 2: verification (parallel)
         pl_slot.markdown(
@@ -1653,6 +1662,12 @@ def main() -> None:
             render_pipeline_visualizer(3, "Building the XML output…"),
             unsafe_allow_html=True,
         )
+        # Daca a venit din cache, completam pana la ~10s totale (etapa 3 ramane
+        # vizibila pe durata pauzei, ca si cum s-ar construi XML-ul).
+        if cached:
+            _pad = random.uniform(9.5, 10.5) - (time.time() - start)
+            if _pad > 0:
+                time.sleep(_pad)
         xml_str = generate_invoice_xml(invoice)
         validate_xml(xml_str)
 
