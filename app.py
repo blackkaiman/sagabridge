@@ -1666,10 +1666,7 @@ def main() -> None:
         # Final state — all four stations done.
         pl_slot.markdown(
             render_pipeline_visualizer(
-                4,
-                f"Complete in {elapsed:.1f}s"
-                f"{' · ⚡ cached' if result.get('cached') else ''}"
-                f" · saved as {xml_path.name}"
+                4, f"Complete in {elapsed:.1f}s · saved as {xml_path.name}"
             ),
             unsafe_allow_html=True,
         )
